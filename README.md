@@ -4,20 +4,6 @@ Copyright (C) 2023 Siemens AG
 SPDX-License-Identifier: MIT
 -->
 
-# Azure Enablement
-
-The project is managed on Azure Devops at
-- [Project overview on Azure DevOps](https://dev.azure.com/siemens-microsoft-iai/Siemens-Microsoft-IAI/)
-
-Actual Sprint backlog is available on page
-- [Actual Sprint backlog](https://dev.azure.com/siemens-microsoft-iai/Siemens-Microsoft-IAI/_sprints/backlog/Siemens-Microsoft-IAI%20Team/Siemens-Microsoft-IAI/)
-
-We are using Azure Subscription **msa-001298** at
-- [Azure Subscription msa-001298](https://portal.azure.com/#@siemens.onmicrosoft.com/resource/subscriptions/6f90d3be-aca6-4312-b4bc-d1d8dd8e65e4/overview)
-
-Design decisions are documented on the
-- [Project Wiki](https://dev.azure.com/siemens-microsoft-iai/Siemens-Microsoft-IAI/_wiki/wikis/Siemens-Microsoft-IAI.wiki/1/Design-Decisions)
-
 ## Getting started
 
 ### Cloning the repository
@@ -25,10 +11,10 @@ To clone the repository you could use ssh or https link
 
 ```
 # using SSH
-git clone git@code.siemens.com:di-fa-industrial-ai/partners/microsoft/azure-enablement/azure-enablement.git
+git clone git@github.com:industrial-edge/reference-architecture-for-industrial-ai-on-azure.git
 
 # or HTTPs
-git clone https://code.siemens.com/di-fa-industrial-ai/partners/microsoft/azure-enablement/azure-enablement.git
+git clone https://github.com/industrial-edge/reference-architecture-for-industrial-ai-on-azure.git
 ```
 
 ### Developing inside Dev Container
@@ -44,6 +30,7 @@ To workaround this create a symlink to the user's .ssh folder at the root of the
 ```
 sudo ln -s ~/.ssh /.ssh
 ```
+
 ## Contribution
 
 Thank you for your interest in contributing. Anybody is free to report bugs, unclear documentation, and other problems regarding this repository in the Issues section.
