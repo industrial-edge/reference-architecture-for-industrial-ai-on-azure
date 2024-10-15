@@ -30,7 +30,7 @@ e.g.
 
 ## Steps to reproduce
 
-Please describe in detail the steps to reproduce the described behaviour
+Please describe in detail the steps to reproduce the described behavior
 
 ## What is the current bug behavior?
 

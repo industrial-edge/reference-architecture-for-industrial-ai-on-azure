@@ -1,18 +1,3 @@
-<!--
-Copyright (C) 2023 Siemens AG
-
-SPDX-License-Identifier: MIT
--->
-
-# Contributions to Industrial Edge Device Kit are always welcome! #
-
-## Did you find a bug? ##
-
-* Ensure the bug was not already reported by searching the [open issues](https://github.com/industrial-edge/reference-architecture-for-industrial-ai-on-azure/issues).
-* Check the [closed issues](https://github.com/industrial-edge/reference-architecture-for-industrial-ai-on-azure/issues?q=is%3Aissue+is%3Aclosed) for solutions to problems other users had.
-* If you're unable to find an issue addressing your problem, open a new issue.
-* Be sure to include a clear title and a clear description, log files, screenshots, code samples and/or executables so that we can understand and reproduce the problem.
-
 ## Do you want to contribute code? ##
 
 Thanks for your interest in contributing. Anybody is free to propose any changes to this repository using Pull Requests. We appreciate every Pull Request, but merging cannot be guaranteed. Before you submit your code, please check the following prerequisites: 
@@ -31,4 +16,4 @@ Thanks for your interest in contributing. Anybody is free to propose any changes
 * test patches sufficiently (obvious, but...) [**required**]
 * you have to sign the [Siemens Contributor License Agreement](https://cla-assistant.io/industrial-edge/) which is provided in the repository and send it via email
 
-# Thank you! #
+## Thank you! ##
