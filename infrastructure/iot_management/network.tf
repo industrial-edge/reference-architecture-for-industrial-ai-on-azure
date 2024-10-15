@@ -1,3 +1,7 @@
+# Copyright (C) 2023 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
 ##### IoT Hub #####
 resource "azurerm_private_endpoint" "iot_hub" {
   count               = var.vnet_enabled ? 1 : 0

@@ -1,3 +1,9 @@
+<!--
+Copyright (C) 2023 Siemens AG
+
+SPDX-License-Identifier: MIT
+-->
+
 ### 1. Creating the terraform remote state
 Open a bash terminal and run the following bash script located under the scripts folder to create the terraform remote state.
 This script creates a storage account inside a newly created resource group called tfstate.

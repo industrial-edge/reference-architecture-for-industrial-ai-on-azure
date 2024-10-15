@@ -1,3 +1,7 @@
+# Copyright (C) 2023 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
 import pandas as pd
 import numpy as np
 from unittest import TestCase

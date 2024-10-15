@@ -1,3 +1,9 @@
+<!--
+Copyright (C) 2023 Siemens AG
+
+SPDX-License-Identifier: MIT
+-->
+
 # CI/CD Pipelines on Gitlab
 This document describes how the CI/CD Pipeline is structured and how it works in order to create and trigger MLOps Pipeline jobs on Azure ML Workspaces.
 

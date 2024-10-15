@@ -1,3 +1,9 @@
+<!--
+Copyright (C) 2023 Siemens AG
+
+SPDX-License-Identifier: MIT
+-->
+
 # Well Architected Framework Alignment
 
 This page describes how this application has addressed each of the pillars defined in the [Azure Well Architected Framework](https://learn.microsoft.com/en-us/azure/well-architected/) (WAF).

@@ -1,4 +1,9 @@
 #!/bin/bash
+
+# Copyright (C) 2023 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
 set -e
 BASH_SCRIPT=`readlink -f "$0"`
 BASH_DIR=`dirname "$BASH_SCRIPT"`

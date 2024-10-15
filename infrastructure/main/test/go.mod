@@ -1,3 +1,7 @@
+// Copyright (C) 2023 Siemens AG
+//
+// SPDX-License-Identifier: MIT
+
 module test
 
 go 1.19

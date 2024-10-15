@@ -1,3 +1,7 @@
+# Copyright (C) 2023 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
 import argparse
 
 from mlops.common.pipeline.get_compute import get_compute

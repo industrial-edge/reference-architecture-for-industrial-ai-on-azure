@@ -1,3 +1,7 @@
+# Copyright (C) 2023 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
 """
 Tests for log_func Azure Function code.
 """

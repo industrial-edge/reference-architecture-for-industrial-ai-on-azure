@@ -1,3 +1,7 @@
+# Copyright (C) 2023 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
 from pathlib import Path
 from unittest import TestCase
 from unittest.mock import MagicMock, patch

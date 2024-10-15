@@ -1,3 +1,9 @@
+<!--
+Copyright (C) 2023 Siemens AG
+
+SPDX-License-Identifier: MIT
+-->
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 

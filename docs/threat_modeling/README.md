@@ -1,3 +1,9 @@
+<!--
+Copyright (C) 2023 Siemens AG
+
+SPDX-License-Identifier: MIT
+-->
+
 # Threat Modeling
 
 This folder contains the data flow diagrams created using the [Microsoft Threat Modeling Tool](https://learn.microsoft.com/en-gb/azure/security/develop/threat-modeling-tool). In order to view / edit the diagrams or the generated list of threats you need to open these models inside the tool.

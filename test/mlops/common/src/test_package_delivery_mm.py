@@ -1,3 +1,7 @@
+# Copyright (C) 2023 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
 import json
 from datetime import datetime, timedelta
 from unittest import TestCase

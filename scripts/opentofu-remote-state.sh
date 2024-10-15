@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Copyright (C) 2023 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
 # Optional parameters can be supplied
 # i.e ./opentofu-remote-state.sh -e "local" -l "westus"
 # will create a resource group with name "tfstatelocal" located in the "westus" region

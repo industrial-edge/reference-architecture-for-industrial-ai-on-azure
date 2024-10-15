@@ -1,3 +1,9 @@
+<!--
+Copyright (C) 2023 Siemens AG
+
+SPDX-License-Identifier: MIT
+-->
+
 # Resource cleanup scheduled job
 
 We have a nightly CI/CD job configured in [.gitlab-ci.yml](https://code.siemens.com/di-fa-industrial-ai/partners/microsoft/azure-enablement/azure-enablement/-/blob/main/.gitlab-ci.yml) file that runs on a schedule and deletes all the redundant resource groups. Currently it is set to run nightly at 3:00AM UTC time using 'main' as target branch.  

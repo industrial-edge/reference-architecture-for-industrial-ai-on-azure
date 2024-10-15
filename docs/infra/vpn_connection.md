@@ -1,3 +1,9 @@
+<!--
+Copyright (C) 2023 Siemens AG
+
+SPDX-License-Identifier: MIT
+-->
+
 # Introduction
 This document describes the process for setting up a VPN connection to access the Azure Resources deployed behind the VNET in the cloud. This document only describes the process for a Point-to-Site configuration.
 

@@ -1,3 +1,7 @@
+# Copyright (C) 2023 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
 locals {
   ampls_dns_zones = {
     "privatelink.monitor.azure.com" : format("monitor-%s-%s", var.deployment_source, var.random_suffix),

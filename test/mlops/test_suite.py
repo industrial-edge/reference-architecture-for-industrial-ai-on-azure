@@ -1,3 +1,7 @@
+# Copyright (C) 2023 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
 import sys
 import unittest
 from test.mlops.common.src import test_package_delivery, test_package_delivery_mm

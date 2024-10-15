@@ -1,4 +1,7 @@
+# Copyright (C) 2023 Siemens AG
 # Copyright (C) Siemens AG 2021. All Rights Reserved. Confidential.
+#
+# SPDX-License-Identifier: MIT
 
 """
 This module contains two methods for executing a scikit-learn pipeline on the AI Inference Server.

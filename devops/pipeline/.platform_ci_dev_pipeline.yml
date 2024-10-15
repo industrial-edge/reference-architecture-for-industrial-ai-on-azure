@@ -1,3 +1,7 @@
+# Copyright (C) 2023 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
 include:
     - devops/pipeline/templates/.variables_template.yml
     - devops/pipeline/templates/.execute_mlops_pipeline.yml

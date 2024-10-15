@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Copyright (C) 2023 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
 # Deploys infrastructure
 # This script needs environment variables already loaded in order to run
 

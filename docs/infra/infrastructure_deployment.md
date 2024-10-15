@@ -1,3 +1,9 @@
+<!--
+Copyright (C) 2023 Siemens AG
+
+SPDX-License-Identifier: MIT
+-->
+
 # Deployment
 
 This document describes the deployment strategy for the Siemens Azure Enablement infrastructure.

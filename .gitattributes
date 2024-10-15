@@ -1,3 +1,7 @@
+# Copyright (C) 2023 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
 *.zip filter=lfs diff=lfs merge=lfs -text
 .whl filter=lfs diff=lfs merge=lfs -text
 .gz filter=lfs diff=lfs merge=lfs -text

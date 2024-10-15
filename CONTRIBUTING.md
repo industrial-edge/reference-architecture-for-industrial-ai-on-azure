@@ -1,3 +1,9 @@
+<!--
+Copyright (C) 2023 Siemens AG
+
+SPDX-License-Identifier: MIT
+-->
+
 # Contributions to Industrial Edge Device Kit are always welcome! #
 
 ## Did you find a bug? ##

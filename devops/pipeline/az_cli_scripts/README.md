@@ -1,3 +1,9 @@
+<!--
+Copyright (C) 2023 Siemens AG
+
+SPDX-License-Identifier: MIT
+-->
+
 # README
 
 This document explains the scripts and templates found in this folder. They support two processes, the Create Model Monitor Identity and Create Model Manager Workspace Identity processes.

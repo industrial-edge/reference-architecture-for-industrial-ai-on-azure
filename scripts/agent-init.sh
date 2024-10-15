@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Copyright (C) 2023 Siemens AG
+#
+# SPDX-License-Identifier: MIT
 
 ### This script installs the microsoft agent software in the deployed linux VMs for pipeline agents ###
 

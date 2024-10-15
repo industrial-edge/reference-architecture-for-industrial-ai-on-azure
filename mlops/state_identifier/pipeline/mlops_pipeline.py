@@ -1,3 +1,7 @@
+# Copyright (C) 2023 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
 import os
 
 from azure.ai.ml import Input, MLClient, load_component

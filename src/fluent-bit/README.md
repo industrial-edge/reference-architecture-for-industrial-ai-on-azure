@@ -1,3 +1,9 @@
+<!--
+Copyright (C) 2023 Siemens AG
+
+SPDX-License-Identifier: MIT
+-->
+
 # Client Cert authentication PoC
 ## Description
 This is a PoC on how to generate and use certificates for authenticating forward inputs with client certificates between Fluent Bit instances.  

@@ -1,3 +1,9 @@
+<!--
+Copyright (C) 2023 Siemens AG
+
+SPDX-License-Identifier: MIT
+-->
+
 # README
 
 This document describes how we build/update the OpenTelemetry Collector (OtelCol) used by this engagement.

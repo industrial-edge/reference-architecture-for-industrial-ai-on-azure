@@ -1,3 +1,7 @@
+# Copyright (C) 2023 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
 import copy
 from types import SimpleNamespace
 from unittest import TestCase

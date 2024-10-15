@@ -1,3 +1,7 @@
+# Copyright (C) 2023 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
 """
 Code creates a Pipeline configuration and runtime package from trained model
 """

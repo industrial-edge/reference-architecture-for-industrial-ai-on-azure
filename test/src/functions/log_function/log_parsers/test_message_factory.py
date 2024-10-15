@@ -1,3 +1,7 @@
+# Copyright (C) 2023 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
 import unittest
 
 from src.functions.log_function.log_parsers.message_factory import MessageFactory

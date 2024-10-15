@@ -1,3 +1,7 @@
+# Copyright (C) 2023 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
 from .default_parser import DefaultParser
 from .regex_parser import RegexParser
 from .model_distributor_parser import ModelDistributorParser

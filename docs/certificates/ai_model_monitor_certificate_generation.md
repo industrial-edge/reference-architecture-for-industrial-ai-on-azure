@@ -1,3 +1,9 @@
+<!--
+Copyright (C) 2023 Siemens AG
+
+SPDX-License-Identifier: MIT
+-->
+
 # AI Model Monitor Certificate Generation
 
 The [Observability Architecture](../observability/observability_architecture.md) requires a certificate to be created for each AI Model Monitor instance. The certificate is associated with a Service Principal in AAD (Entra ID)and is used by the [AAD Authentication Proxy](https://github.com/Azure/aad-auth-proxy) to claim a bearer token representing the Service Principal's identity. This allows all traffic from the AI Model Monitor (OpenTelemetry Collector's Azure Monitor Exporter component) flowing to Application Insights in Azure to carry an AAD based identity and thus be authenticated in Azure.
