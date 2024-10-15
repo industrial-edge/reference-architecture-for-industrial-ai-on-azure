@@ -1,36 +1,23 @@
 Target directory: /home/zsszabo/github/reference-architecture-for-industrial-ai-on-azure
-Axiom language failed to run with error: Linguist not installed
+Axiom language failed to run with error: Unexpected end of JSON input
 Axiom license failed to run with error: Licensee not installed
 Lint:
-✖ license-file-exists: Did not find a file matching the specified patterns
-	✖ LICENSE*
-	✖ COPYING*
+✔ license-file-exists: Found file (LICENSE.txt)
 ✔ readme-file-exists: Found file (README.md)
-✖ contributing-file-exists: Did not find a file matching the specified patterns ({docs/,.github/,}CONTRIB*)
-✖ code-of-conduct-file-exists: Did not find a file matching the specified patterns
-	✖ {docs/,.github/,}CODEOFCONDUCT*
-	✖ {docs/,.github/,}CODE-OF-CONDUCT*
-	✖ {docs/,.github/,}CODE_OF_CONDUCT*
-✖ changelog-file-exists: Did not find a file matching the specified patterns (CHANGELOG*)
+✔ contributing-file-exists: Found file (CONTRIBUTING.md)
+✔ code-of-conduct-file-exists: Found file (CODE_OF_CONDUCT.md)
+✔ changelog-file-exists: Found file (CHANGELOG.md)
 ✖ security-file-exists: Did not find a file matching the specified patterns ({docs/,.github/,}SECURITY.md)
 ✖ support-file-exists: Did not find a file matching the specified patterns ({docs/,.github/,}SUPPORT*)
-✖ readme-references-license: Doesn't contain license (README.md)
+✔ readme-references-license: Contains license (README.md)
 ✔ binaries-not-present: Excluded file type doesn't exist (**/*.exe,**/*.dll,!node_modules/**)
 ✔ test-directory-exists: Found file (test)
 ✔ integrates-with-ci: Found file (.gitlab-ci.yml)
-✔ code-of-conduct-file-contains-email: Did not find file matching the specified patterns
-	✖ CODEOFCONDUCT*
-	✖ CODE-OF-CONDUCT*
-	✖ CODE_OF_CONDUCT*
-	✖ .github/CODEOFCONDUCT*
-	✖ .github/CODE-OF-CONDUCT*
-	✖ .github/CODE_OF_CONDUCT*
+✔ code-of-conduct-file-contains-email: Contains email address (CODE_OF_CONDUCT.md)
 ⚠ source-license-headers-exist: Did not find file matching the specified patterns
 	⚠ **/*.js
 	⚠ !node_modules/**
-✖ github-issue-template-exists: Did not find a file matching the specified patterns
-	✖ ISSUE_TEMPLATE*
-	✖ .github/ISSUE_TEMPLATE*
+✔ github-issue-template-exists: Found file (.github/ISSUE_TEMPLATE)
 ✖ github-pull-request-template-exists: Did not find a file matching the specified patterns
 	✖ PULL_REQUEST_TEMPLATE*
 	✖ .github/PULL_REQUEST_TEMPLATE*
