@@ -1,0 +1,53 @@
+{
+    "models":[
+        {
+            "RESOURCE_GROUP_NAME": "rg-main",
+            "WORKSPACE_NAME": "mlops-demo-ads",
+            "KEYVAULT_NAME": "mlopsdemoads4407966912",
+            "CLUSTER_NAME": "mlops-cluster",
+            "CLUSTER_REGION": "westeurope",
+            "CLUSTER_SIZE": "STANDARD_DS11_V2",
+
+            "ML_MODEL_CONFIG_NAME": "state_identifier",
+            "ENV_NAME": "dev",
+            "CONDA_PATH": "mlops/state_identifier/environment/conda.yml",
+            "DISPLAY_BASE_NAME": "state_identifier",
+            "ENV_BASE_IMAGE_NAME": "mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04",
+            "ENVIRONMENT_NAME": "state_identifier_env",
+            "EXPERIMENT_BASE_NAME": "state_identifier",
+            "ML_SCOPE_SVC_CONNECTION": "mlops_scoped",
+            "MODEL_BASE_NAME": "state_identifier",
+            "PACKAGE_NAME": "State-Identifier-edge",
+            "REGISTRY_NAME": "1036914a2d29447aa2ed556c4b3e90d6",
+            "ASSET_NAME_PR": "state_identifier_pr_data",
+            "ASSET_NAME_CI": "state_identifier_ci_data",
+            "VALIDATION_ASSET_NAME": "state_identifier_pr_data",
+            "GITHUB_URL": "https://github.com/siemens/simatic-ai-launcher/raw/master/datasets/state-identifier/si-sample.parquet"
+        },
+        {
+            "RESOURCE_GROUP_NAME": "rg-main",
+            "WORKSPACE_NAME": "mlops-demo-ads",
+            "KEYVAULT_NAME": "mlopsdemoads4407966912",
+            "CLUSTER_NAME": "mlops-cluster",
+            "CLUSTER_REGION": "westeurope",
+            "CLUSTER_SIZE": "STANDARD_DS11_V2",
+
+            "ML_MODEL_CONFIG_NAME": "image_classification",
+            "ENV_NAME": "dev",
+            "CONDA_PATH": "mlops/image_classification/environment/conda.yml",
+            "DISPLAY_BASE_NAME": "mlops",
+            "ENV_BASE_IMAGE_NAME": "mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04",
+            "ENVIRONMENT_NAME": "image_classification_env",
+            "EXPERIMENT_BASE_NAME": "image_classification",
+            "ML_SCOPE_SVC_CONNECTION": "mlops_scoped",
+            "MODEL_BASE_NAME": "image_classification",
+            "PACKAGE_NAME": "Image-Classification-edge",
+            "REGISTRY_NAME": "1036914a2d29447aa2ed556c4b3e90d6",
+            "AZURE_RM_SVC_CONNECTION": "sp-azure-enablement",
+            "ASSET_NAME_PR": "image_classification_pr_data",
+            "ASSET_NAME_CI": "image_classification_ci_data",
+            "VALIDATION_ASSET_NAME": "image_classification_pr_data",
+            "GITHUB_URL": "https://github.com/siemens/simatic-ai-launcher/raw/master/datasets/simatic_photos.tgz"
+        }
+    ]
+}

@@ -1,0 +1,6 @@
+pytest==7.1.2
+mlflow==2.4.1
+tsfresh ==0.17.0
+tensorflow==2.7.4
+simaticai==1.5.0rc1
+seaborn==0.12.2

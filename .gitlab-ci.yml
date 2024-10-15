@@ -1,0 +1,226 @@
+stages:
+  # - devcontainerbuild
+  - test
+  - build
+  - apply
+  - trigger
+  - platform
+  - e2e_test
+  - report
+
+
+variables:
+  CONTAINER_REGISTRY: "cr.siemens.com/di-fa-industrial-ai/partners/microsoft/azure-enablement/azure-enablement"
+  azure_tenant_id: "${AZURE_TENANT_ID}"
+  azure_client_id: "${AZURE_CLIENT_ID}"
+  azure_client_secret: "${AZURE_CLIENT_SECRET}"
+  subscription_id: "${AZURE_SUBSCRIPTION_ID}"
+  initial_pipeline_id: "$CI_PIPELINE_ID"
+  DEVCONTAINER_VERSION: "0.0.6"
+
+
+
+# devcontainer-build:
+#   stage: devcontainerbuild
+#   image:
+#     name: gcr.io/kaniko-project/executor:v1.14.0-debug
+#     entrypoint: [""]
+#   script:
+#     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+#     - /kaniko/executor
+#       --context .
+#       --dockerfile .devcontainer/Dockerfile
+#       --build-arg HTTP_PROXY=$HTTP_PROXY
+#       --destination "${CONTAINER_REGISTRY}/dev-container:${DEVCONTAINER_VERSION}"
+#   rules:
+#     - if: $CI_PIPELINE_SOURCE != "schedule" && $CI_PIPELINE_SOURCE == "push"
+#       changes:
+#         - .devcontainer/*
+#         - .gitlab-ci.yml
+
+
+az-smoke-test:
+  stage: test
+  image: mcr.microsoft.com/azure-cli:latest
+  variables:
+    ARM_CLIENT_ID: "$AZURE_CLIENT_ID"
+    ARM_CLIENT_SECRET: "$AZURE_CLIENT_SECRET"
+    ARM_TENANT_ID: "$AZURE_TENANT_ID"
+    ARM_SUBSCRIPTION_ID: "$AZURE_SUBSCRIPTION_ID"
+  script:
+  - az login --service-principal --username=${AZURE_CLIENT_ID} --password=${AZURE_CLIENT_SECRET} --tenant=${AZURE_TENANT_ID}
+  - az logout
+
+sonarqube-check:
+  stage: test
+  image:
+    name: sonarsource/sonar-scanner-cli:4.8.0
+    entrypoint: [""]
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
+    GIT_DEPTH: "0"
+  cache:
+    key: "${CI_JOB_NAME}"
+    paths:
+      - .sonar/cache
+  script:
+    - sonar-scanner
+  allow_failure: true
+
+.python-unittest:
+  stage: test
+  image: ${CONTAINER_REGISTRY}/dev-container:${DEVCONTAINER_VERSION}
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
+      changes:
+        - ${MODULE}/**/*
+        - test/${MODULE}/**/*
+  script:
+    - export PATH=$PATH:$(pwd)
+    - pip install html-testRunner
+    - echo $PYTHON_PATH
+    - python -m test.${MODULE}.test_suite
+  artifacts:
+    when: always
+    expire_in: 2 weeks
+    paths:
+    - "test_reports/"
+
+python-mlops-unit-test:
+  variables:
+    MODULE: mlops
+  extends:
+    - .python-unittest
+  before_script:
+    # Required because scripts running in Azure Ml uses the /mlops folder as root
+    - python -m pip install -r mlops/requirements.txt -f ${CI_PROJECT_DIR}/mlops/common/environment/packaging
+    - export PYTHONPATH="${CI_PROJECT_DIR}/mlops:${PYTHONPATH}"
+
+.opentofu-module-e2e:
+  stage: test
+  image: ${CONTAINER_REGISTRY}/dev-container:${DEVCONTAINER_VERSION}
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule" && $CI_PIPELINE_SOURCE == "push"
+      changes:
+        - infrastructure/**/*
+        - .gitlab-ci.yml
+  variables:
+    GOMODCACHE: ${CI_PROJECT_DIR}/go/pkg/mod
+  script:
+    - az login --service-principal --username=${ARM_CLIENT_ID} --password=${ARM_CLIENT_SECRET} --tenant=${ARM_TENANT_ID}
+    - |
+      (
+        export TF_VAR_resource_group_name=$RESOURCE_GROUP_NAME
+        export TF_VAR_container_name=$CONTAINER_NAME
+        export TF_VAR_storage_account_name=$STORAGE_ACCOUNT_NAME
+
+        echo TF_VAR_resource_group_name=$TF_VAR_resource_group_name
+        echo TF_VAR_container_name=$CONTAINER_NAME
+        echo TF_VAR_storage_account_name=$STORAGE_ACCOUNT_NAME
+
+        cd infrastructure/${module}/test
+        go test -timeout 1h
+      )
+    - az logout
+  cache:
+    key: "$CI_COMMIT_REF_SLUG"
+    paths:
+     - ${GOMODCACHE}
+
+opentofu-main:
+  extends:
+    - .opentofu-module-e2e
+  variables:
+    module: main
+
+build_mlops_tutorial:
+  stage: build
+  script:
+    - echo "cd mlops && . create_tutorial state_identifier"
+    - echo "cd mlops && . create_tutorial image_classification"
+
+apply_test_env:
+  stage: apply
+  image: ${CONTAINER_REGISTRY}/dev-container:${DEVCONTAINER_VERSION}
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  script:
+    - cd scripts
+    - ./deploy-infra.sh --source main --skip-tests
+    - cd ../infrastructure/main
+
+# Helpers
+.trigger_platform_pipeline:
+  script:
+  - echo "Triggering platform pipeline number ${initial_pipeline_id} with model ${model_name} in environment ${environment}."
+
+create_si_pipeline:
+  stage: trigger
+  when: manual
+  variables:
+    model_name: state_identifier
+    environment: dev
+  extends:
+    - .trigger_platform_pipeline
+
+create_ic_pipeline:
+  stage: trigger
+  when: manual
+  variables:
+    model_name: image_classification
+    environment: dev
+  extends:
+    - .trigger_platform_pipeline
+
+prepare_dev_delivery_pipeline:
+  stage: platform
+  variables:
+    env_name: dev
+  trigger:
+    include:
+      - devops/pipeline/.delivery_pipeline.yml
+    strategy: depend
+    forward:
+      yaml_variables: true
+      pipeline_variables: true
+
+si_platform_pipeline:
+  stage: platform
+  needs:
+    - create_si_pipeline
+  trigger:
+    include:
+      - devops/pipeline/.state_identifier_ci_dev_pipeline.yml
+    strategy: depend
+    forward:
+      pipeline_variables: true
+      yaml_variables: true
+
+ic_platform_pipeline:
+  stage: platform
+  needs:
+    - create_ic_pipeline
+  trigger:
+    include:
+      - devops/pipeline/.image_classification_ci_dev_pipeline.yml
+    strategy: depend
+    forward:
+      pipeline_variables: true
+
+
+e2e_azure_test:
+  stage: e2e_test
+  script:
+    - echo "TODO testing created azure test env e2e"
+
+
+cleanup_resources:
+  image: mcr.microsoft.com/azure-cli:latest
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_JOB_NAME == "cleanup_resources"
+  script:
+    - az login --service-principal --username=${ARM_CLIENT_ID} --password=${ARM_CLIENT_SECRET} --tenant=${ARM_TENANT_ID}
+    - az group list --query "[?starts_with(name, 'rg-dev-') || starts_with(name, 'rg-test-')].name" --output tsv | xargs -I {} az group delete --yes --name {}
+    - az logout

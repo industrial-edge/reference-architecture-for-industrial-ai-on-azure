@@ -1,0 +1,38 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+name: score_package
+version: 1
+display_name: ScorePackage
+type: command
+
+inputs:
+  validation_results:
+    type: uri_file
+  raw_data:
+    type: uri_file
+  subscription_id:
+    type: string
+  workspace_name:
+    type: string
+  resource_group_name:
+    type: string
+  asset_name:
+    type: string
+  asset_version:
+    type: string
+
+outputs:
+  metrics_results:
+    type: uri_file
+
+environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest
+code: ./../../
+command: >-
+  python -m image_classification.src.package.score_package
+  --validation_results ${{inputs.validation_results}}
+  --raw_data ${{inputs.raw_data}}
+  --subscription_id ${{inputs.subscription_id}}
+  --workspace_name ${{inputs.workspace_name}}
+  --resource_group_name ${{inputs.resource_group_name}}
+  --asset_name ${{inputs.asset_name}}
+  --asset_version ${{inputs.asset_version}}
+  --metrics_results ${{outputs.metrics_results}}

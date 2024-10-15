@@ -1,0 +1,20 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+name: prepare_image_classification_data
+display_name: ImageClassificationData
+version: 1
+type: command
+inputs:
+  raw_data:
+    type: uri_folder
+outputs:
+  training_data:
+    type: uri_folder
+  test_data:
+    type: uri_folder
+code: ./../../
+environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest
+command: >-
+  python -m image_classification.src.prep.prep
+  --raw_data ${{inputs.raw_data}}
+  --training_data ${{outputs.training_data}}
+  --test_data ${{outputs.test_data}}

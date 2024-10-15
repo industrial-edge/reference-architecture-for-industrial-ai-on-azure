@@ -1,0 +1,51 @@
+trigger:
+  branches:
+    include:
+      - development
+  paths:
+    include:
+      - devops/*
+      - mlops/common/*
+      - mlops/image_classification/*
+      - test/mlops/common/*
+      - test/mlops/image_classification/*
+
+variables:
+- group: vg-az-client
+
+pool:
+  name: $(AGENT_POOL)
+
+parameters:
+ - name: deploy_env
+   displayName: "Deployment Environment"
+   default: "dev"
+ - name: model_type
+   displayName: "Type of model to execute"
+   default: "image_classification"
+ - name: model_name
+   displayName: "Name of model to execute"
+   default: "image_classification"
+ - name: target_device_id
+   displayName: "Id of the target device"
+   default: "test_target"
+ - name: pipeline_type
+   displayName: "type of pipeline to execute"
+   default: "ci"
+
+stages:
+  - template: templates/variables_template_training_and_packaging.yml
+    parameters:
+      deploy_env: ${{parameters.deploy_env}}
+      model_type: ${{parameters.model_type}}
+      pipeline_type: ${{parameters.pipeline_type}}
+  - template: templates/variables_template_delivery.yml
+    parameters:
+      deploy_env: ${{parameters.deploy_env}}
+      model_type: ${{parameters.model_type}}
+  - template: platform_ci_dev_pipeline.yml
+    parameters:
+      deploy_env: ${{ parameters.deploy_env }}
+      model_type: ${{ parameters.model_type }}
+      model_name: ${{ parameters.model_name }}
+      target_device_id: ${{ parameters.target_device_id }}

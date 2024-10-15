@@ -1,0 +1,22 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+name: score_package
+version: 1
+display_name: ScorePackage
+type: command
+
+inputs:
+  validation_results:
+    type: uri_file
+  prep_data:
+    type: uri_folder
+outputs:
+  metrics_results:
+    type: uri_file
+
+environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest
+code: ./../../
+command: >-
+  python -m state_identifier.src.package.score_package
+  --validation_results ${{inputs.validation_results}}
+  --prep_data ${{inputs.prep_data}}
+  --metrics_results ${{outputs.metrics_results}}

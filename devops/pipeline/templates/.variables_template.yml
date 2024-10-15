@@ -1,0 +1,28 @@
+stages:
+    - variable_creation
+
+load_config_variables:
+  stage: variable_creation
+  image: ${CONTAINER_REGISTRY}/reporter:latest
+  script:
+    - |
+      json=$(cat 'mlops/config/model_config.json')
+      firstElement=$(echo "$json" | jq -r ".models[] | select(.ML_MODEL_CONFIG_NAME==\"$model_type\" and .ENV_NAME==\"$env_name\") | .")
+
+      echo "$firstElement" | jq -r 'to_entries[] | "\(.key)=\(.value)"' >> build.env
+
+      EXPERIMENT_NAME="${model_type}_$(echo "$firstElement" | jq -r .EXPERIMENT_BASE_NAME)_${env_name}"
+      echo "EXPERIMENT_NAME=$EXPERIMENT_NAME" >> build.env
+
+      DISPLAY_BASE_NAME=$(echo "$firstElement" | jq -r .DISPLAY_BASE_NAME)
+      DISPLAY_NAME="${model_type}_${env_name}_${initial_pipeline_id}"
+      echo "DISPLAY_NAME=$DISPLAY_NAME" >> build.env
+
+      MODEL_NAME="${model_type}_$(echo "$firstElement" | jq -r .MODEL_BASE_NAME)_${env_name}"
+      echo "MODEL_NAME=$MODEL_NAME" >> build.env
+
+  artifacts:
+    reports:
+      dotenv: build.env
+    paths:
+      - build.env

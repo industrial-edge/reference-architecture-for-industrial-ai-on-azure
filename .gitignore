@@ -1,0 +1,88 @@
+# a developer can copy his/her own files in a me/ folder without adding them to the repo
+**/me/
+**/backend.conf
+
+.DS_STORE
+.idea
+__pycache__/
+
+v/*
+
+### Terraform ###
+# "**/" means match in all directories
+**/.terraform/
+**/.terraform.lock.hcl
+**/.terraform.tfstate.lock.info
+**/.test-data/
+**/terraform.tfstate
+**/terraform.tfstate.backup
+**/.test-data/
+**/backend.conf
+infrastructure/terraform.tvars
+
+# VPN configuration
+*.der
+*.pem
+*.cer
+
+# From the python function generated .gitignore
+bin
+obj
+csx
+.vs
+edge
+Publish
+
+*.user
+*.suo
+*.cscfg
+*.Cache
+project.lock.json
+
+/packages
+/TestResults
+/test_reports
+
+/tools/NuGet.exe
+/App_Data
+/secrets
+/data
+.secrets
+appsettings.json
+local.settings.json
+
+node_modules
+dist
+
+# Local python packages
+.python_packages/
+
+# Python Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Byte-compiled / optimized / DLL files
+__pycache__
+*.py[cod]
+*$py.class
+
+# Azurite artifacts
+__blobstorage__
+__queuestorage__
+__azurite_db*__.json
+run_id.txt
+docs/infra/images/.$AAC.Diagram.drawio.bkp
+setenv.sh
+
+
+# other
+config-temp
+model_config-temp.json
+delivery_config-temp.json
+
+scripts/*.json

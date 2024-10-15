@@ -1,0 +1,38 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+name: register_package
+version: 2
+display_name: RegisterPackage
+type: command
+
+inputs:
+  package_path:
+    type: uri_file
+  subscription_id:
+    type: string
+  workspace_name:
+    type: string
+  resource_group_name:
+    type: string
+  metrics_results:
+    type: uri_file
+  model_name:
+    type: string
+  model_version:
+    type: string
+
+outputs:
+  registry_results:
+    type: uri_file
+
+environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest
+code: ./../../
+command: >-
+  python -m common.src.package_registration
+  --package_path ${{inputs.package_path}}
+  --subscription_id ${{inputs.subscription_id}}
+  --workspace_name ${{inputs.workspace_name}}
+  --resource_group_name ${{inputs.resource_group_name}}
+  --metrics_results ${{inputs.metrics_results}}
+  --model_name ${{inputs.model_name}}
+  --model_version ${{inputs.model_version}}
+  --registry_results ${{outputs.registry_results}}

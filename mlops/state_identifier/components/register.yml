@@ -1,0 +1,32 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+name: register_state_identifier_model
+display_name: RegisterStateIdentifierModel
+version: 1
+type: command
+
+inputs:
+  model_name:
+    type: string
+  build_reference:
+    type: string
+  score_report:
+    type: uri_folder
+  preparation_pipeline_path:
+    type: uri_folder
+  model:
+    type: uri_folder
+
+outputs:
+  mlops_results:
+    type: uri_file
+
+code: ./../../
+environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest
+command: >-
+  python -m state_identifier.src.register.register
+  --model_name ${{inputs.model_name}}
+  --build_reference ${{inputs.build_reference}}
+  --score_report ${{inputs.score_report}}
+  --preparation_pipeline_path ${{inputs.preparation_pipeline_path}}
+  --model ${{inputs.model}}
+  --mlops_results ${{outputs.mlops_results}}

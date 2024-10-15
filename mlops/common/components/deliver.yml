@@ -1,0 +1,34 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+name: package_delivery_to_aimm
+display_name: Package delivery to AI Model Manager
+description: Deliver an Edge Configuration Package to AI Model Manager.
+version: 1
+type: command
+inputs:
+  device_id:
+    type: string
+  edge_package_name:
+    type: string
+  edge_package_version:
+    type: string
+  keyvault_name:
+    type: string
+  iot_hub_connection_string_secret_name:
+    type: string
+  event_hub_connection_string_secret_name:
+    type: string
+  deploy_environment:
+    type: string
+code: ./../../
+environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest # dummy
+command: >-
+  python -m common.src.package_delivery
+  --device_id ${{inputs.device_id}}
+  --edge_package_name ${{inputs.edge_package_name}}
+  --edge_package_version ${{inputs.edge_package_version}}
+  --keyvault_name ${{inputs.keyvault_name}}
+  --iot_hub_connection_string_secret_name ${{inputs.iot_hub_connection_string_secret_name}}
+  --event_hub_connection_string_secret_name ${{inputs.event_hub_connection_string_secret_name}}
+  --deploy_environment ${{inputs.deploy_environment}}
+
+

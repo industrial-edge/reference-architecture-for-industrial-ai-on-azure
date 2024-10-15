@@ -1,0 +1,26 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+name: register_image_classification_model
+display_name: RegisterImageClassificationModel
+version: 1
+type: command
+inputs:
+  model_metadata:
+    type: uri_file
+  model_name:
+    type: string
+  score_report:
+    type: uri_folder
+  build_reference:
+    type: string
+outputs:
+  mlops_results:
+    type: uri_file
+code: ./../../
+environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest
+command: >-
+  python -m image_classification.src.register.register
+  --model_name ${{inputs.model_name}}
+  --build_reference ${{inputs.build_reference}}
+  --score_report ${{inputs.score_report}}
+  --model_metadata ${{inputs.model_metadata}}
+  --mlops_results ${{outputs.mlops_results}}

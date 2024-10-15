@@ -1,0 +1,25 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+name: validate_package
+version: 2
+display_name: ValidatePackage
+type: command
+
+inputs:
+  model_type:
+    type: string
+  payload_data:
+    type: uri_file
+  package_path:
+    type: uri_file
+
+outputs:
+  validation_results:
+    type: uri_file
+
+environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest
+code: ./../../
+command: >-
+  python -m common.src.package_validation
+  --payload_data ${{inputs.payload_data}}
+  --package_path ${{inputs.package_path}}
+  --validation_results ${{outputs.validation_results}}

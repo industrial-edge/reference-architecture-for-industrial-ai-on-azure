@@ -1,0 +1,80 @@
+trigger: none
+
+variables:
+- group: vg-az-client
+
+pool:
+  name: $(AGENT_POOL)
+
+parameters:
+ - name: deploy_env
+   displayName: "Deployment Environment"
+   default: "prod"
+ - name: model_type
+   displayName: "Type of model to execute"
+   default: "state_identifier"
+ - name: model_name
+   displayName: "Name of model to execute"
+   default: "state_identifier"
+ - name: target_device_id
+   displayName: "Id of the target device"
+   default: "prod_target"
+ - name: edge_package_name
+   displayName: "Name of the edge package"
+   default: "placeholder"
+ - name: edge_package_version
+   displayName: "Version of the edge package"
+   default: "placeholder"
+
+
+stages:
+- template: templates/variables_template_delivery.yml
+  parameters:
+    deploy_env: ${{parameters.deploy_env}}
+    model_type: ${{ parameters.model_type }}
+- stage: deliver_model
+  displayName: deliver_model
+  dependsOn:
+  - variable_generation_delivery
+  variables:
+  - template: templates/experiment_variables.yml
+  jobs:
+  - job: 'run_delivery_job'
+    displayName: 'run_delivery_job'
+    steps:
+    - template: templates/configure_azureml_agent.yml
+    - task: AzureCLI@2
+      name: submit_delivery_job
+      displayName: Execute Delivery Job
+      continueOnError: false
+      inputs:
+        azureSubscription: $(AZURE_RM_SVC_CONNECTION)
+        scriptType: bash
+        workingDirectory: $(System.DefaultWorkingDirectory)
+        scriptLocation: inlineScript
+        inlineScript: |
+          if [[ -z "${{ parameters.target_device_id }}" ]]; then echo "please define the 'target_device_id' environment variable when triggering the job"; exit 1; else echo "target_device_id=${{ parameters.target_device_id }}"; fi
+          echo "Delivering edge package from Azure Model Registry: ${{ parameters.edge_package_name }}:${{ parameters.edge_package_version }}"
+          echo "Target device in Azure IoT Hub: ${{ parameters.target_device_id }}"
+          python -m mlops.common.pipeline.delivery_pipeline  \
+                  --build_reference $(Build.BuildID) \
+                  --subscription_id $(SUBSCRIPTION_ID) \
+                  --resource_group_name $(RESOURCE_GROUP_NAME_DELIVERY) \
+                  --workspace_name $(WORKSPACE_NAME_DELIVERY) \
+                  --cluster_name $(CLUSTER_NAME_DELIVERY) \
+                  --cluster_size $(CLUSTER_SIZE_DELIVERY) \
+                  --cluster_region $(CLUSTER_REGION_DELIVERY) \
+                  --experiment_name $(EXPERIMENT_NAME_DELIVERY) \
+                  --display_name delivery_$(DISPLAY_NAME_DELIVERY) \
+                  --wait_for_completion True \
+                  --env_base_image_name $(ENV_BASE_IMAGE_NAME_DELIVERY) \
+                  --conda_path $(CONDA_PATH_DELIVERY) \
+                  --environment_name $(ENVIRONMENT_NAME_DELIVERY) \
+                  --keyvault_name $(KEYVAULT_NAME_DELIVERY) \
+                  --iot_hub_connection_string_secret_name $(IOT_HUB_CONNECTION_STRING_SECRET_NAME_DELIVERY) \
+                  --event_hub_connection_string_secret_name $(EVENT_HUB_CONNECTION_STRING_SECRET_NAME_DELIVERY) \
+                  --device_id ${{ parameters.target_device_id }}  \
+                  --edge_package_name ${{ parameters.edge_package_name }} \
+                  --edge_package_version ${{ parameters.edge_package_version }} \
+                  --deploy_environment ${{ parameters.deploy_env }}
+          echo "The package ${{ parameters.edge_package_name }}:${{ parameters.edge_package_version }} has been delivered to ${{ parameters.target_device_id }}"

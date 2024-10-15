@@ -1,0 +1,43 @@
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: localhost:14317
+
+# extensions:
+#   file_storage:
+#   file_storage/all_settings:
+#     directory: /var/lib/otelcol
+#     timeout: 1s
+#     compaction:
+#       on_start: true
+#       directory: /tmp/
+#       max_transaction_size: 65_536
+
+exporters:
+  logging:
+    verbosity: detailed
+  azuremonitor:
+    instrumentation_key: ${env:APP_INSIGHTS_KEY}
+    endpoint: http://localhost:8081/v2.1/track
+    # sending_queue:
+    #   enabled: true
+    #   queue_size: 1000
+    #   num_consumers: 10
+    #   storage: file_storage/all_settings
+
+service:
+  # extensions: [file_storage, file_storage/all_settings]
+  pipelines:
+    metrics:
+      receivers: [otlp]
+      processors: []
+      exporters: [azuremonitor]
+    logs:
+      receivers: [otlp]
+      processors: []
+      exporters: [azuremonitor]
+
+  telemetry:
+    logs:
+      level: "debug"

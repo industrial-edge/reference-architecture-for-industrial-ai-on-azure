@@ -1,0 +1,48 @@
+stages:
+ - execute_mlops
+
+variables:
+  script_parameter: |
+    python -m mlops.${model_type}.pipeline.mlops_pipeline
+                --subscription_id $subscription_id
+                --resource_group_name $RESOURCE_GROUP_NAME
+                --workspace_name $WORKSPACE_NAME
+                --cluster_name $CLUSTER_NAME
+                --cluster_size $CLUSTER_SIZE
+                --cluster_region $CLUSTER_REGION
+                --build_reference $CI_JOB_ID
+                --deploy_environment ${env_name}
+                --experiment_name $EXPERIMENT_NAME
+                --display_name mlops_$DISPLAY_NAME
+                --wait_for_completion True
+                --environment_name $ENVIRONMENT_NAME
+                --env_base_image_name $ENV_BASE_IMAGE_NAME
+                --model_name $MODEL_NAME
+                --conda_path $CONDA_PATH
+                --output_file run_id.txt
+                --ml_model_config_name $ML_MODEL_CONFIG_NAME
+
+execute_mlops_pipeline:
+  image: mcr.microsoft.com/azure-cli:latest
+  stage: execute_mlops
+  script: |
+    az login --service-principal --username=$azure_client_id --password=$azure_client_secret --tenant=$azure_tenant_id
+    cd $CI_PROJECT_DIR
+    set -e # fail on error
+    python -m pip install --upgrade pip
+    pip install -r devops/pipeline/requirements/execute_job_requirements.txt
+    az version
+    $script_parameter
+    model_name=$(cat ./named-outputs/pipeline_job_mlops_results/mlops_results | jq '.model_name' -r)
+    model_version=$(cat ./named-outputs/pipeline_job_mlops_results/mlops_results | jq '.model_version' -r)
+    echo "The model has been registered in Azure Model Registry: $model_name:$model_version (model type: ${model_type})"
+    echo "model_type=$model_type" >> build.env
+    echo "model_name=$model_name" >> build.env
+    echo "model_version=$model_version" >> build.env
+  allow_failure: true  # TODO: revert when test is successful
+  artifacts:
+    reports:
+      dotenv: build.env
+    paths:
+      - build.env
+      - named-outputs/*
