@@ -1,0 +1,22 @@
+# Copyright (C) 2023 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+name: prepare_image_classification_data
+display_name: CreateMqttPayload
+version: 1
+type: command
+inputs:
+  raw_data:
+    type: uri_folder
+outputs:
+  payload_data:
+    type: uri_file
+
+code: ./../../
+environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest
+command: >-
+  python -m image_classification.src.prep.mqtt_payload
+  --raw_data ${{inputs.raw_data}}
+  --payload_data ${{outputs.payload_data}}

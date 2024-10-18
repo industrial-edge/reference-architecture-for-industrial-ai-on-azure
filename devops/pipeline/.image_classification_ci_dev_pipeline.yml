@@ -1,0 +1,11 @@
+# Copyright (C) 2023 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
+variables:
+  model_name: image_classification
+  model_type: image_classification
+  env_name: dev
+
+include:
+ - devops/pipeline/.platform_ci_dev_pipeline.yml

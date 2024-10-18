@@ -1,0 +1,50 @@
+# Copyright (C) 2023 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
+---
+version: '3.8'
+
+services:
+  fluentbit-source:
+    image: fluent/fluent-bit:latest
+    network_mode: host
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: '/fluent-bit/bin/fluent-bit --config=/fluent-bit/etc/fluent-bit.conf -Z -F stdout -m "*" -Z'
+    ports:
+     - "4318:4318"
+    volumes:
+     - ./source:/fluent-bit/etc/
+
+  fluentbit-source2:
+    image: fluent/fluent-bit:latest
+    network_mode: host
+    extra_hosts:
+     - "host.docker.internal:host-gateway"
+    command: '/fluent-bit/bin/fluent-bit --config=/fluent-bit/etc/fluent-bit.conf -Z -F stdout -m "*" -Z'
+      #ports:
+      #- "4318:4318"
+    volumes:
+     - ./source2:/fluent-bit/etc/
+
+  fluentbit-sink:
+    image: fluent/fluent-bit:latest
+    network_mode: host
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: '/fluent-bit/bin/fluent-bit --config=/fluent-bit/etc/fluent-bit.conf -Z -F stdout -m "*" -Z'
+    ports:
+     - "24284:24284"
+     - "24285:24285"
+    volumes:
+     - ./sink:/fluent-bit/etc/
+
+  prometheus:
+    image: prom/prometheus
+    network_mode: host
+    ports:
+     - "9090:9090"
+    command:
+     - --web.enable-remote-write-receiver
+     - --config.file=/etc/prometheus/prometheus.yml

@@ -1,0 +1,38 @@
+# Copyright (C) 2023 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+name: data_asset_creation
+display_name: Create Data Asset
+description: Create a data asset in AzureML
+version: 1
+type: command
+inputs:
+  model_type:
+    type: string
+  github_url:
+    type: string
+  asset_name_ci:
+    type: string
+  asset_name_pr:
+    type: string
+  subscription_id:
+    type: string
+  resource_group_name:
+    type: string
+  workspace_name:
+    type: string
+  subsample_percentage:
+    type: string
+code: ./../../
+environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest
+command: >-
+  python -m ${{inputs.model_type}}.src.data_asset_creation.data_asset_creation \
+    --subscription_id ${{inputs.subscription_id}} \
+    --resource_group_name ${{inputs.resource_group_name}} \
+    --workspace_name ${{inputs.workspace_name}} \
+    --github_url ${{inputs.github_url}} \
+    --asset_name_ci ${{inputs.asset_name_ci}} \
+    --asset_name_pr ${{inputs.asset_name_pr}} \
+    --subsample_percentage ${{inputs.subsample_percentage}}

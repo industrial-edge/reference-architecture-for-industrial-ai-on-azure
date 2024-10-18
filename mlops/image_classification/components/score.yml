@@ -1,0 +1,24 @@
+# Copyright (C) 2023 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+name: score_model
+version: 1
+display_name: ScoreModel
+type: command
+inputs:
+  test_data:
+    type: uri_folder
+  model:
+    type: uri_folder
+outputs:
+  score_report:
+    type: uri_folder
+environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest
+code: ./../../
+command: >-
+  python -m image_classification.src.score.score
+  --test_data ${{inputs.test_data}}
+  --model ${{inputs.model}}
+  --score_report ${{outputs.score_report}}

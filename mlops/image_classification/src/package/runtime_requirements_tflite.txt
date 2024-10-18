@@ -1,0 +1,4 @@
+# SPDX-FileCopyrightText: Copyright (C) 2023 Siemens AG
+# SPDX-License-Identifier: MIT
+Pillow==9.4.0
+tflite_runtime==2.7.0

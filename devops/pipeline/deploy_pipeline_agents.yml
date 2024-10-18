@@ -1,0 +1,37 @@
+# Copyright (C) 2023 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
+trigger: none
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+- group: vg-az-client
+
+stages:
+- stage: Deploy
+  displayName: Deploy Pipeline Agents
+  jobs:
+  - job: "deploy_terraform"
+    displayName: "Deploy Self-Hosted Agent"
+    steps:
+    - task: AzureCLI@2
+      name: deploy_terraform
+      displayName: "Deploy with terraform"
+      inputs:
+        scriptLocation: inlineScript
+        azureSubscription: $(AZURE_RM_SVC_CONNECTION)
+        scriptType: bash
+        workingDirectory: $(System.DefaultWorkingDirectory)
+        inlineScript: |
+          ./scripts/deploy-pipeline-agents.sh --action apply --extra-var azdo_pat=$(PIPELINE_AGENT_TOKEN)
+      env:
+        ARM_CLIENT_ID: $(AZURE_CLIENT_ID)
+        ARM_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
+        ARM_TENANT_ID: $(AZURE_TENANT_ID)
+        ARM_SUBSCRIPTION_ID: $(AZURE_SUBSCRIPTION_ID)
+        RESOURCE_GROUP: $(TF_STATE_RESOURCE_GROUP)
+        STORAGE_ACCOUNT_NAME: $(TF_STATE_STORAGE_ACCOUNT_NAME)
+        CONTAINER_NAME: $(TF_STATE_CONTAINER_NAME)

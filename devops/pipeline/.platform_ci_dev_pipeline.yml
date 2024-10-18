@@ -1,0 +1,103 @@
+# Copyright (C) 2023 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
+include:
+    - devops/pipeline/templates/.variables_template.yml
+    - devops/pipeline/templates/.execute_mlops_pipeline.yml
+
+stages:
+ - variable_creation
+ - execute_mlops
+ - packaging
+ - delivery
+
+package_model:
+  stage: packaging
+  when: manual
+  image: mcr.microsoft.com/azure-cli:latest
+  needs:
+    job: execute_mlops_pipeline
+    artifacts: true
+  variables:
+    packaging_env: "simaticai"
+    packaging_conda_path: "mlops/common/environment/packaging/conda.yml"
+  script:
+    - >
+      echo "Packaging model from Azure Model Registry: ${model_name}:${model_version}"
+    - az login --service-principal --username=${ARM_CLIENT_ID} --password=${ARM_CLIENT_SECRET} --tenant=${ARM_TENANT_ID}
+    - python -m pip install -r devops/pipeline/requirements/execute_job_requirements.txt
+    - python -m mlops.common.pipeline.packaging_pipeline
+                  --build_reference ${CI_JOB_ID}
+                  --subscription_id ${ARM_SUBSCRIPTION_ID}
+                  --resource_group_name ${RESOURCE_GROUP_NAME}
+                  --workspace_name ${WORKSPACE_NAME}
+                  --cluster_name ${CLUSTER_NAME}
+                  --cluster_size ${CLUSTER_SIZE}
+                  --cluster_region ${CLUSTER_REGION}
+                  --deploy_environment ${env_name}
+                  --experiment_name ${EXPERIMENT_NAME}
+                  --display_name packaging_${DISPLAY_NAME}
+                  --wait_for_completion True
+                  --environment_name ${packaging_env}
+                  --model_type ${model_type}
+                  --model_name ${model_name}
+                  --model_version ${model_version}
+                  --package_name ${PACKAGE_NAME}
+                  --conda_path ${packaging_conda_path}
+                  --output_file run_id.txt
+    - edge_package_name=$(cat ./named-outputs/packaging_results/packaging_results | jq '.edge_package_name' -r)
+    - edge_package_version=$(cat ./named-outputs/packaging_results/packaging_results | jq '.edge_package_version' -r)
+    - >
+      echo "The package has been registered in Azure Model Registry: $edge_package_name:$edge_package_version"
+    - echo "edge_package_name=$edge_package_name" >> build.env
+    - echo "edge_package_version=$edge_package_version" >> build.env
+  artifacts:
+    when: always
+    reports:
+      dotenv: build.env
+    paths:
+      - build.env
+      - named-outputs/*
+
+deliver_model:
+  stage: delivery
+  when: manual
+  image: mcr.microsoft.com/azure-cli:latest
+  variables:
+    delivery_env_name: "edge_package_delivery_env"
+    delivery_conda_path: "mlops/common/environment/delivery_conda.yml"
+    KEYVAULT_NAME: <keyvault_name>
+    IOT_HUB_CONNECTION_STRING_SECRET_NAME: "iot-hub-connection-string"
+    EVENT_HUB_CONNECTION_STRING_SECRET_NAME: "event-hub-connection-string"
+
+  script:
+    - if [[ -z "${target_device_id}" ]]; then echo "please define the 'target_device_id' environment variable when triggering the job"; exit 1; else echo "target_device_id=${target_device_id}"; fi
+    - >
+      echo "Delivering edge package from Azure Model Registry: ${edge_package_name}:${edge_package_version}"
+    - >
+      echo "Target device in Azure IoT Hub: $target_device_id"
+    - az login --service-principal --username=${ARM_CLIENT_ID} --password=${ARM_CLIENT_SECRET} --tenant=${ARM_TENANT_ID}
+    - cd $CI_PROJECT_DIR
+    - set -e # fail on error
+    - python -m pip install --upgrade pip
+    - pip install -r devops/pipeline/requirements/execute_job_requirements.txt
+    - python -m mlops.common.pipeline.delivery_pipeline
+                --build_reference ${CI_JOB_ID}
+                --subscription_id ${ARM_SUBSCRIPTION_ID}
+                --resource_group_name ${RESOURCE_GROUP_NAME}
+                --workspace_name ${WORKSPACE_NAME}
+                --cluster_name ${CLUSTER_NAME}
+                --experiment_name ${EXPERIMENT_NAME}
+                --display_name delivery_${DISPLAY_NAME}
+                --wait_for_completion True
+                --env_base_image_name ${ENV_BASE_IMAGE_NAME}
+                --conda_path ${delivery_conda_path}
+                --environment_name ${delivery_env_name}
+                --keyvault_name $KEYVAULT_NAME
+                --iot_hub_connection_string_secret_name ${IOT_HUB_CONNECTION_STRING_SECRET_NAME}
+                --event_hub_connection_string_secret_name ${EVENT_HUB_CONNECTION_STRING_SECRET_NAME}
+                --device_id ${target_device_id}
+                --edge_package_name ${edge_package_name}
+                --edge_package_version ${edge_package_version}
+    - echo "The package $edge_package_name:$edge_package_version has been delivered to $target_device_id"

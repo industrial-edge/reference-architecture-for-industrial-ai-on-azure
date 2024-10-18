@@ -1,0 +1,99 @@
+# Copyright (C) 2023 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
+parameters:
+ - name: deploy_env
+   displayName: "Deployment Environment"
+ - name: model_type
+   displayName: "type of model to execute"
+ - name: pipeline_type
+   displayName: "type of pipeline to execute"
+   default: None
+
+stages:
+- stage: variable_generation_training_and_packaging
+  jobs:
+  - job: load_config_variables_training_and_packaging
+    steps:
+    - powershell: |
+          $json = Get-Content -Raw -Path '$(System.DefaultWorkingDirectory)/mlops/config/model_config.json' | ConvertFrom-Json
+          $firstElement = $json.models | Where-Object {($_.ML_MODEL_CONFIG_NAME -eq "${{ parameters.model_type }}") -and ($_.ENV_NAME -eq "${{ parameters.deploy_env }}")} | Select-Object -First 1
+
+          foreach ($property in $firstElement.PSObject.Properties) {
+            $pname = $property.Name
+            $pvalue = $property.Value
+            Write-Output "##vso[task.setvariable variable=$pname;isoutput=true]$pvalue"
+            }
+
+          $EXPERIMENT_NAME =  "$($firstElement.EXPERIMENT_BASE_NAME)" + "_" + "${{parameters.deploy_env}}"
+          Write-Output "##vso[task.setvariable variable=EXPERIMENT_NAME;isoutput=true]$EXPERIMENT_NAME"
+
+          $DISPLAY_NAME =  "${{ parameters.model_type }}" + "_" + "$($firstElement.DISPLAY_BASE_NAME)" + "_" + "${{parameters.deploy_env}}" + "_" + "$(Build.BuildID)"
+          Write-Output "##vso[task.setvariable variable=DISPLAY_NAME;isoutput=true]$DISPLAY_NAME"
+          $MODEL_NAME =  "${{ parameters.model_type }}" + "_" + "$($firstElement.MODEL_BASE_NAME)" + "_" + "${{parameters.deploy_env}}"
+          Write-Output "##vso[task.setvariable variable=MODEL_NAME;isoutput=true]$MODEL_NAME"
+
+          if ("${{ parameters.pipeline_type }}" -eq "ci") {
+              Write-Output "##vso[task.setvariable variable=ASSET_NAME;isoutput=true]$($firstElement.ASSET_NAME_CI)"
+          }
+          elseif ("${{ parameters.pipeline_type }}" -eq "pr") {
+              Write-Output "##vso[task.setvariable variable=ASSET_NAME;isoutput=true]$($firstElement.ASSET_NAME_PR)"
+          }
+
+      name: loading_model_config
+
+  - job: validate_assign_variables_training_and_packaging
+    dependsOn:
+    - load_config_variables_training_and_packaging
+    variables:
+    - name:  ML_MODEL_CONFIG_NAME
+      value: $[ dependencies.load_config_variables_training_and_packaging.outputs['loading_model_config.ML_MODEL_CONFIG_NAME'] ]
+    - name:  EXPERIMENT_BASE_NAME
+      value: $[ dependencies.load_config_variables_training_and_packaging.outputs['loading_model_config.EXPERIMENT_BASE_NAME'] ]
+    - name:  ENVIRONMENT_NAME
+      value: $[ dependencies.load_config_variables_training_and_packaging.outputs['loading_model_config.ENVIRONMENT_NAME'] ]
+    - name:  ENV_BASE_IMAGE_NAME
+      value: $[ dependencies.load_config_variables_training_and_packaging.outputs['loading_model_config.ENV_BASE_IMAGE_NAME'] ]
+    - name:  DISPLAY_BASE_NAME
+      value: $[ dependencies.load_config_variables_training_and_packaging.outputs['loading_model_config.DISPLAY_BASE_NAME'] ]
+    - name: CONDA_PATH
+      value: $[ dependencies.load_config_variables_training_and_packaging.outputs['loading_model_config.CONDA_PATH'] ]
+    - name:  CLUSTER_SIZE
+      value: $[ dependencies.load_config_variables_training_and_packaging.outputs['loading_model_config.CLUSTER_SIZE'] ]
+    - name:  CLUSTER_REGION
+      value: $[ dependencies.load_config_variables_training_and_packaging.outputs['loading_model_config.CLUSTER_REGION'] ]
+    - name:  CLUSTER_NAME
+      value: $[ dependencies.load_config_variables_training_and_packaging.outputs['loading_model_config.CLUSTER_NAME'] ]
+    - name:  MODEL_BASE_NAME
+      value: $[ dependencies.load_config_variables_training_and_packaging.outputs['loading_model_config.MODEL_BASE_NAME'] ]
+    - name:  KEYVAULT_NAME
+      value: $[ dependencies.load_config_variables_training_and_packaging.outputs['loading_model_config.KEYVAULT_NAME'] ]
+    - name:  REGISTRY_NAME
+      value: $[ dependencies.load_config_variables_training_and_packaging.outputs['loading_model_config.REGISTRY_NAME'] ]
+    - name:  RESOURCE_GROUP_NAME
+      value: $[ dependencies.load_config_variables_training_and_packaging.outputs['loading_model_config.RESOURCE_GROUP_NAME'] ]
+    - name:  WORKSPACE_NAME
+      value: $[ dependencies.load_config_variables_training_and_packaging.outputs['loading_model_config.WORKSPACE_NAME'] ]
+    - name: EXPERIMENT_NAME
+      value: $[ dependencies.load_config_variables_training_and_packaging.outputs['loading_model_config.EXPERIMENT_NAME'] ]
+    - name: DISPLAY_NAME
+      value: $[ dependencies.load_config_variables_training_and_packaging.outputs['loading_model_config.DISPLAY_NAME'] ]
+    - name: MODEL_NAME
+      value: $[ dependencies.load_config_variables_training_and_packaging.outputs['loading_model_config.MODEL_NAME'] ]
+    - name: AZURE_RM_SVC_CONNECTION
+      value: $[ dependencies.load_config_variables_training_and_packaging.outputs['loading_model_config.AZURE_RM_SVC_CONNECTION'] ]
+    - name:  ASSET_NAME
+      value: $[ dependencies.load_config_variables_training_and_packaging.outputs['loading_model_config.ASSET_NAME'] ]
+    - name:  VALIDATION_ASSET_NAME
+      value: $[ dependencies.load_config_variables_training_and_packaging.outputs['loading_model_config.VALIDATION_ASSET_NAME'] ]
+    steps:
+    - script: |
+        if [ -z "$(ML_MODEL_CONFIG_NAME)"]
+        then
+          echo "variables are not available. Check parameter values or config json file for valid values.."
+          exit 1
+        else
+          echo "variables were loaded from config file.."
+          printenv
+        fi

@@ -1,0 +1,85 @@
+<mxfile host="65bd71144e">
+    <diagram id="d0C5kgaKQNW41QWQJkIV" name="Page-1">
+        <mxGraphModel dx="1216" dy="812" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="2" value="Harald" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;" vertex="1" parent="1">
+                    <mxGeometry x="70" y="60" width="100" height="460" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="Request new Model Monitor ID" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="2" target="3">
+                    <mxGeometry width="80" relative="1" as="geometry">
+                        <mxPoint x="50" y="70" as="sourcePoint"/>
+                        <mxPoint x="130" y="70" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="3" value="Ian" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;lifelineDashed=0;" vertex="1" parent="1">
+                    <mxGeometry x="260" y="60" width="100" height="460" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" value="Create Model Monitor Pipeline" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="3" target="4">
+                    <mxGeometry width="80" relative="1" as="geometry">
+                        <mxPoint x="50" y="100" as="sourcePoint"/>
+                        <mxPoint x="130" y="100" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="4" value="Create Model Monitor Identity" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;" vertex="1" parent="1">
+                    <mxGeometry x="420" y="60" width="100" height="460" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="Create Device Certiificate" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="4" target="5">
+                    <mxGeometry width="80" relative="1" as="geometry">
+                        <mxPoint x="50" y="130" as="sourcePoint"/>
+                        <mxPoint x="130" y="130" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="11" value="Certificate" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="4" source="5">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="130" y="160" as="sourcePoint"/>
+                        <mxPoint x="50" y="160" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="19" value="Store config as Secret" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="4" target="5">
+                    <mxGeometry width="80" relative="1" as="geometry">
+                        <mxPoint x="50" y="380" as="sourcePoint"/>
+                        <mxPoint x="130" y="380" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="5" value="Key Vault" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;" vertex="1" parent="1">
+                    <mxGeometry x="570" y="60" width="100" height="460" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" value="Fine/Create App Registration" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="5" target="6">
+                    <mxGeometry width="80" relative="1" as="geometry">
+                        <mxPoint x="50" y="200" as="sourcePoint"/>
+                        <mxPoint x="130" y="200" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="13" value="Attach certificate" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="5" target="6">
+                    <mxGeometry width="80" relative="1" as="geometry">
+                        <mxPoint x="50" y="240" as="sourcePoint"/>
+                        <mxPoint x="130" y="240" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="14" value="Grant permissions on AppInsight to Service Principal" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="5" target="7">
+                    <mxGeometry width="80" relative="1" as="geometry">
+                        <mxPoint x="50" y="280" as="sourcePoint"/>
+                        <mxPoint x="130" y="280" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="6" value="AAD" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;" vertex="1" parent="1">
+                    <mxGeometry x="750" y="60" width="100" height="460" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="AppInsights" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;" vertex="1" parent="1">
+                    <mxGeometry x="880" y="60" width="100" height="460" as="geometry"/>
+                </mxCell>
+                <mxCell id="18" value="Generate Device Config JSON" style="edgeStyle=orthogonalEdgeStyle;html=1;align=left;spacingLeft=2;endArrow=block;rounded=0;entryX=1;entryY=0;" edge="1" parent="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="470" y="380" as="sourcePoint"/>
+                        <Array as="points">
+                            <mxPoint x="500" y="380"/>
+                        </Array>
+                        <mxPoint x="475" y="400" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

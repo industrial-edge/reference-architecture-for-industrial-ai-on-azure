@@ -1,0 +1,45 @@
+# Copyright (C) 2023 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
+parameters:
+ - name: deploy_env
+   displayName: "Deployment Environment"
+ - name: model_type
+   displayName: "Type of model to execute"
+
+stages:
+- stage: variable_generation_delivery
+  jobs:
+  - job: load_config_variables_delivery
+    steps:
+    - powershell: |
+          $json = Get-Content -Raw -Path '$(System.DefaultWorkingDirectory)/mlops/config/delivery_config.json' | ConvertFrom-Json
+
+          foreach ($property in $json.PSObject.Properties) {
+            $pname = $property.Name
+            $pvalue = $property.Value
+            Write-Output "##vso[task.setvariable variable=$pname;isoutput=true]$pvalue"
+            }
+
+          $DISPLAY_NAME_DELIVERY =  "${{ parameters.model_type }}" + "_" + "${{parameters.deploy_env}}" + "_" + "$(Build.BuildID)"
+          Write-Output "##vso[task.setvariable variable=DISPLAY_NAME_DELIVERY;isoutput=true]$DISPLAY_NAME_DELIVERY"
+
+      name: loading_delivery_config
+  
+  - job: validate_assign_variables_delivery
+    dependsOn:
+    - load_config_variables_delivery
+    variables:
+    - name: RESOURCE_GROUP_NAME_DELIVERY
+      value: $[ dependencies.load_config_variables_delivery.outputs['loading_delivery_config.RESOURCE_GROUP_NAME_DELIVERY'] ]
+    steps:
+    - script: |
+        if [ -z "$(RESOURCE_GROUP_NAME_DELIVERY)"]
+        then
+          echo "variables are not available. Check parameter values or config json file for valid values.."
+          exit 1
+        else
+          echo "variables were loaded from config file.."
+          printenv
+        fi
