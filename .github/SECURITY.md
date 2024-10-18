@@ -8,9 +8,7 @@ SPDX-License-Identifier: MIT
 
 If you discover a security vulnerability in the code and believe it may harm other users, and you are willing to help us fix it but do not wish to disclose the details publicly.
 
-**Please raise an issue on our issue board**
-
-The email subject format should be: `[Security Vulnerability] <Title>`
+**Please raise an issue on our [issue board](https://github.com/industrial-edge/reference-architecture-for-industrial-ai-on-azure/issues)**
 
 Please provide detailed steps to reproduce the security vulnerability, its impact, and we will reply and express our gratitude upon receiving your email.
 
