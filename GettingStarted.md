@@ -21,6 +21,15 @@ By the end of these steps you will have the infrastructure with all of necessary
 
 You can either clone the repository or download as a zip file with all of the contents.  
 The command to be used can be found on the top right of the repository main page, or you can find a link or button to download the whole repository in a single zip file.
+To clone the repository you could use ssh or https link
+
+```
+# using SSH
+git clone git@github.com:industrial-edge/reference-architecture-for-industrial-ai-on-azure.git
+
+# or HTTPs
+git clone https://github.com/industrial-edge/reference-architecture-for-industrial-ai-on-azure.git
+```
 
 ## 2. Using Visual Studio Code with Dev Container
 

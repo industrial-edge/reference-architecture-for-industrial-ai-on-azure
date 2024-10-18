@@ -8,7 +8,7 @@ SPDX-License-Identifier: MIT
 
 If you discover a security vulnerability in the code and believe it may harm other users, and you are willing to help us fix it but do not wish to disclose the details publicly.
 
-**Please send detailed information to our email: industrialedge.industry@siemens.com.**
+**Please raise an issue on our issue board**
 
 The email subject format should be: `[Security Vulnerability] <Title>`
 
