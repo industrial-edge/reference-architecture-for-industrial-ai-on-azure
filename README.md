@@ -8,11 +8,11 @@ SPDX-License-Identifier: MIT
 
 This document explains the steps to take in order to experience the workflow with Siemens Industrial AI Portfolio with a smooth integration with Microsoft Azure Cloud. The process is an example implementation of the [Reference Architecture for Siemens and Microsoft Customers in the Industrial AI Space](https://techcommunity.microsoft.com/t5/azure-architecture-blog/a-reference-architecture-for-siemens-and-microsoft-customers-in/ba-p/4077589) article.
 
-By the end of these steps you will have the infrastructure with all of necessary resources, keys and configurations.
+By the end of these steps you will have the infrastructure with all necessary resources, keys and configurations.
 
 ## Getting started
 
-Following the steps described in [Gettin Started](GettingStarted.md) document, you can learn how to connect your Industrai AI Edge applications to the Azure Cloud services, and how to fulfil an MLOps workflow from ML Model creation and training to the step of Monitoring your AI Model on the shopfloor.
+Following the steps described in [Getting Started](GettingStarted.md) document, you can learn how to connect your Industrial AI Edge applications to the Azure Cloud services, and how to fulfill an MLOps workflow from ML Model creation and training to the step of Monitoring your AI Model on the shopfloor.
 
 Our [Getting Started](./GettingStarted.md) document covers the steps of how to 
 - [Clone the repository](./GettingStarted.md#1-clone-the-repository)
