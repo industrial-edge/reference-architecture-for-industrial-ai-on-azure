@@ -24,6 +24,11 @@ Our [Getting Started](./GettingStarted.md) document covers the steps of how to
     - [AI Model Manager](./GettingStarted.md#ai-model-manager)
     - [AI Model Monitor](./GettingStarted.md#ai-model-monitor)
 
+## Architecture Overview
+This representation shows how Siemens Industrial AI applications can be used in cooperation with Azure Cloud. The specific configurations of these applications and resources will be detailed in this repository:
+
+![Architecture overview](./docs/infra/images/industrialai-azure-diagram.png)
+
 
 ## Contribution
 
