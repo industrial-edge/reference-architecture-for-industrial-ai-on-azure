@@ -39,7 +39,7 @@ The WAF is built upon 5 pillars
 | Monitor system security, plan incident response | Azure Monitor is now used to store/process logs & metrics data. No alerts have been configured. No Incident Response planning has taken place. | <ul><li> Correlate security and audit events to model application health.</li> <li>Correlate security and audit events to identify active threats. </li><li> Establish automated and manual procedures to respond to incidents. </li><li>Use security information and event management (SIEM) tooling for tracking.</li></ul> | |
 | Identify and protect endpoints | All public endpoints removed. Access to vNet resources is by VPN Gateway only. | |
 | Protect against code-level vulnerabilities | Limited action | Introduce CI/CD pipeline checks such as CredScan and package vulnerability scanning. |
-| Model and test against potential threats | [Threat Model complete](https://dev.azure.com/siemens-microsoft-iai/Siemens-Microsoft-IAI/_git/Siemens-Microsoft-IAI-Reference?path=/docs/threat_modeling/README.md&version=GBdevelopment&_a=contents). | Static code analysis, CredScan and penetration testing should be considered. |
+| Model and test against potential threats | [Threat Model complete](../threat_modeling/README.md). | Static code analysis, CredScan and penetration testing should be considered. |
 
 ## Cost Optimisation
 

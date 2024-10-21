@@ -207,4 +207,3 @@ More detailed documentation on certificate management can be found at:
 
 - [AI Model Monitor Certificate Generation](../certificates/ai_model_monitor_certificate_generation.md)
 - [Readme for the scripts used in the creation of Model Monitor Identity and Model Manager Identity](../../devops/pipeline/az_cli_scripts/README.md)
-- [ADR on Certificate Management process](https://dev.azure.com/siemens-microsoft-iai/Siemens-Microsoft-IAI/_wiki/wikis/Siemens-Microsoft-IAI.wiki/73/001-Certificate-Management-Process)

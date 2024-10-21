@@ -53,7 +53,7 @@ variable "agent_pool" {
 variable "azdo_org_service_url" {
   type        = string
   description = "The url of the organization on Azure DevOps"
-  default     = "https://dev.azure.com/siemens-microsoft-iai"
+  default     = "https://dev.azure.com/<your-project>"  # Replace <your-project> with your Azure DevOps project
 }
 
 variable "number_of_agents" {

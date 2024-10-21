@@ -109,4 +109,3 @@ The remaining steps are shown here for logical completion, but are not implement
 
 An issue with this approach is that Harald requires "Get Secrets" permission on the KeyVault, so is not truly minimally privileged. There is a tension between Requirements 4 & 7. For Harald to have no privileges in KeyVault, some other system component needs to be able to get secrets on his behalf. This could be implemented as an Azure hosted API (WebApp, Container, Function etc) but this contradicts requirement 7 stating there should be no custom software running in Azure.
 
-Thoughts on how to improve this situation can be found in the project [Wiki](https://dev.azure.com/siemens-microsoft-iai/Siemens-Microsoft-IAI/_wiki/wikis/Siemens-Microsoft-IAI.wiki/95/001-KeyVault-Improvements).
