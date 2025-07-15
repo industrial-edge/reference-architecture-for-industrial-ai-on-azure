@@ -1,14 +1,10 @@
-# Copyright (C) 2023 Siemens AG
-#
-# SPDX-License-Identifier: MIT
-
 import os
 
 from azure.ai.ml import Input, MLClient, load_component
 from azure.ai.ml.dsl import pipeline
 from azure.identity import DefaultAzureCredential
 
-from mlops.common.pipeline.prepare_execute import read_args_and_execute
+from mlops.common.pipeline.prepare_execute import ArgRunner
 from mlops.common.src.base_logger import get_logger
 
 logger = get_logger(__name__)
@@ -23,28 +19,46 @@ def state_identifier_data_regression(pipeline_job_input, model_name, build_refer
     )
     train_with_data = gl_pipeline_components[1](
         training_data=prepare_data.outputs.prep_data,
+        raw_data=pipeline_job_input,
     )
     score_with_data = gl_pipeline_components[2](
+        raw_data=pipeline_job_input,
         prep_data=prepare_data.outputs.prep_data,
         model=train_with_data.outputs.model_output,
     )
     register_model_with_data = gl_pipeline_components[3](  # noqa: F841
-        model=train_with_data.outputs.model_output,
+        model_metadata=train_with_data.outputs.model_metadata,
         model_name=model_name,
         score_report=score_with_data.outputs.score_report,
         build_reference=build_reference,
-        preparation_pipeline_path=prepare_data.outputs.preparation_pipeline_path,
     )
 
     return {
-        "pipeline_job_prepped_data": prepare_data.outputs.prep_data,
+        "pipeline_job_prepared_data": prepare_data.outputs.prep_data,
         "pipeline_job_trained_model": train_with_data.outputs.model_output,
         "pipeline_job_score_report": score_with_data.outputs.score_report,
-        "pipeline_job_mlops_results": register_model_with_data.outputs.mlops_results,
+        "pipeline_job_azureml_outputs": register_model_with_data.outputs.azureml_outputs,
     }
 
 
-def construct_pipeline(
+def construct_pipeline(args: dict, compute, environment):
+    logger.info("construct_pipeline")
+
+    return construct(
+        args.subscription_id,
+        args.resource_group_name,
+        args.workspace_name,
+        compute.name,
+        f"azureml:{environment.name}:{environment.version}",
+        args.display_name,
+        args.deploy_environment,
+        args.build_reference,
+        args.model_name,
+        args.asset_name,
+    )
+
+
+def construct(
     subscription_id: str,
     resource_group_name: str,
     workspace_name: str,
@@ -102,7 +116,7 @@ def construct_pipeline(
     }
 
     # demo how to change pipeline output settings
-    pipeline_job.outputs.pipeline_job_prepped_data.mode = "rw_mount"
+    pipeline_job.outputs.pipeline_job_prepared_data.mode = "rw_mount"
 
     # set pipeline level compute
     pipeline_job.settings.default_compute = cluster_name
@@ -114,4 +128,17 @@ def construct_pipeline(
 
 
 if __name__ == "__main__":
-    read_args_and_execute(construct_pipeline)
+
+    arg_runner = ArgRunner()
+
+    arg_runner.add_arg(
+        "--model_name", type=str, default="Name used for registration of model"
+    )
+    arg_runner.add_arg(
+        "--asset_name",
+        type=str,
+        required=False,
+        help="The data asset to be used by the pipeline.",
+    )
+
+    arg_runner.prepare_and_execute(construct_pipeline)

@@ -1,7 +1,3 @@
-# Copyright (C) 2023 Siemens AG
-#
-# SPDX-License-Identifier: MIT
-
 import time
 from typing import List
 from pathlib import Path
@@ -15,7 +11,25 @@ from mlops.common.src.base_logger import get_logger
 logger = get_logger(__name__)
 
 
-def execute_pipeline(
+def execute_pipeline(args: dict, pipeline_job: pipeline):
+
+    azureml_outputs = None
+    if args.azureml_outputs is None:
+        azureml_outputs = [args.azureml_outputs]
+
+    execute(
+        args.subscription_id,
+        args.resource_group_name,
+        args.workspace_name,
+        args.experiment_name,
+        pipeline_job,
+        args.wait_for_completion,
+        args.output_file,
+        azureml_outputs,
+    )
+
+
+def execute(
     subscription_id: str,
     resource_group_name: str,
     workspace_name: str,

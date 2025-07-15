@@ -1,20 +1,23 @@
-# Copyright (C) 2023 Siemens AG
 # Copyright (C) Siemens AG 2021. All Rights Reserved. Confidential.
-#
-# SPDX-License-Identifier: MIT
 
-import json
-import logging
 import sys
-
+import json
+import cv2
+import numpy
 from pathlib import Path
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+from log_module import LogModule
 
-sys.path.insert(0, str(Path(".").resolve()))
+logger = LogModule()
+
+
+sys.path.insert(0, str(Path("./src").resolve()))
 import vision_classifier as classifier
-import payload
+
+
+IMAGE_WIDTH = 224
+IMAGE_HEIGHT = 224
+IMAGE_SIZE = (IMAGE_WIDTH, IMAGE_HEIGHT)
 
 
 def process_input(data: dict):
@@ -24,23 +27,46 @@ def process_input(data: dict):
     Then returns a prediction from the created pillow image.
 
     Args:
-        data (dict): Dictionary that should contain a single key 'vision_payload' that holds the Vision Connector MQTT payload.  # noqa: E501
+        data (dict): Dictionary that should contain the key 'vision_payload' that holds the Vision Connector payload.
     Returns:
-        dict: A dictionary with a single key 'prediction' that holds the index of the predicted class as an integer string.  # noqa: E501
+        dict: A dictionary with the key 'prediction' that holds the index of the predicted class as an integer string.
     """
-    vision_payload = json.loads(data["vision_payload"])
-    pil_image = payload.get_image_from_vision_mqtt_payload(vision_payload)
-    if pil_image is None:
-        return None
 
-    prediction, probability = classifier.predict_from_image(pil_image)
-    logger.debug(f"Predicted class: {prediction} (probability: {probability})")
+    logger.debug(f"data: {data}")
 
-    return {
-        "prediction": str(prediction),
-        "ic_probability": metric_output(probability),
-    }
+    image_set = data["vision_payload"]["detail"]
+
+    i = 0
+    for image in image_set:
+        logger.debug(f"image: {i}")
+        i += 1
+
+        width = image["width"]
+        height = image["height"]
+        image_bytes = image["image"]
+        image_id = image["id"]
+        try:
+            if "BayerRG8" != image["format"]:
+                logger.warning(f"Unsupported image format: {image['format']}")
+                return None
+
+            converted_image = numpy.frombuffer(image_bytes, dtype=numpy.uint8)
+            converted_image = converted_image.reshape(height, width)
+            converted_image = cv2.resize(converted_image, IMAGE_SIZE)
+            converted_image = cv2.cvtColor(converted_image, cv2.COLOR_BayerRG2RGB)
+
+            prediction, probability = classifier.predict_from_image(converted_image)
+            logger.debug(f"Predicted class: {prediction} (probability: {probability})")
+            return {
+                "prediction": str(prediction),
+                "ic_probability": metric_output(probability),
+            }
+        except Exception as e:
+            logger.warning(
+                f"Error decoding image from vision payload. Image ID: '{image_id}' Exception:{e}"
+            )
+            return None
 
 
-def metric_output(v: int or float):
+def metric_output(v: float):
     return json.dumps({"value": v})

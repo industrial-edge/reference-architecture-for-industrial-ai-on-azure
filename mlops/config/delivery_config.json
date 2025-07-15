@@ -1,12 +1,11 @@
 {
     "delivery": [
         {
-            "IOT_HUB_CONNECTION_STRING_SECRET_NAME_DELIVERY": "iotmngmt-iothub-primary-connection-string",
-            "EVENT_HUB_CONNECTION_STRING_SECRET_NAME_DELIVERY": "iotmngmt-iothub-eventhub-compatible-endpoint",
-            "DEVICE_ID": "device_id",
-            "PACKAGE_VERSION": "package_version",
-
-            "ENV_BASE_IMAGE_NAME_DELIVERY": "mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04",
+            "IOT_HUB_CONNECTION_STRING_SECRET_NAME_DELIVERY": "<iotmngmt-iothub-connection-string-secret-name>",
+            "EVENT_HUB_CONNECTION_STRING_SECRET_NAME_DELIVERY": "<iotmngmt-iothub-eventhub-compatible-endpoint>",
+            "DEVICE_ID": "<device-id>",
+            "PACKAGE_NAME": "<package-name>",
+            "PACKAGE_VERSION": "<package-version>",
             "CONDA_PATH_DELIVERY": "mlops/common/environment/delivery_conda.yml"
         }
     ]

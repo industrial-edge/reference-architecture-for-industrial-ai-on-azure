@@ -1,7 +1,3 @@
-# Copyright (C) 2023 Siemens AG
-#
-# SPDX-License-Identifier: MIT
-
 variable "deployment_source" {
   type        = string
   description = "The deployment source (e.g dev)"

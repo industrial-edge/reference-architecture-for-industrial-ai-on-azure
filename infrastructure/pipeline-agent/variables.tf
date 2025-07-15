@@ -1,7 +1,3 @@
-# Copyright (C) 2023 Siemens AG
-#
-# SPDX-License-Identifier: MIT
-
 variable "location" {
   type        = string
   description = "Specifies the supported Azure location where the resource exists. Changing this forces a new resource to be created."
@@ -53,7 +49,7 @@ variable "agent_pool" {
 variable "azdo_org_service_url" {
   type        = string
   description = "The url of the organization on Azure DevOps"
-  default     = "https://dev.azure.com/<your-project>"  # Replace <your-project> with your Azure DevOps project
+  default     = "https://dev.azure.com/siemens-microsoft-iai"
 }
 
 variable "number_of_agents" {

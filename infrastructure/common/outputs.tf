@@ -1,7 +1,3 @@
-# Copyright (C) 2023 Siemens AG
-#
-# SPDX-License-Identifier: MIT
-
 output "rg_name" {
   value = var.deployment_source == "main" ? "rg-main" : format("rg-%s-%s", var.deployment_source, var.random_suffix)
 }

@@ -1,9 +1,3 @@
-<!--
-Copyright (C) 2023 Siemens AG
-
-SPDX-License-Identifier: MIT
--->
-
 ### 1. Prerequisites
 To assign roles, the account used must have Microsoft.Authorization/roleAssignments/write permissions, such as User Access Administrator or Owner
 

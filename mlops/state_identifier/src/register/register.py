@@ -1,88 +1,80 @@
-# Copyright (C) 2023 Siemens AG
-#
-# SPDX-License-Identifier: MIT
-
 import argparse
 import json
-import os
-import pickle
 from pathlib import Path
-
 import mlflow
+from azureml.core import Run
+
 from common.src.base_logger import get_logger
-from joblib import load
-from sklearn.pipeline import Pipeline
 
 logger = get_logger(__name__)
 
 
 def main(
+    model_metadata: str,
     model_name: str,
     score_report: str,
     build_reference: str,
-    preparation_pipeline_path: str,
-    model: str,
-    mlops_results_path: str,
+    azureml_outputs: str,
 ):
+
+    lines = [
+        f"model_metadata: {model_metadata}",
+        f"model_name: {model_name}",
+        f"score_report: {score_report}",
+        f"build_reference: {build_reference}",
+        f"azureml_outputs: {azureml_outputs}",
+    ]
+
+    for line in lines:
+        logger.info(line)
+
+    run = Run.get_context()
+    mlflow.set_tracking_uri(run.experiment.workspace.get_mlflow_tracking_uri())
+
     try:
-        score_file = open(Path(score_report) / "score.txt")
-        score_data = json.load(score_file)
-        silhouette = score_data["silhouette"]
-        dunn_index = score_data["dunn_index"]
-        inertia = score_data["inertia"]
 
-        model = pickle.load(open((Path(model) / "model.sav"), "rb"))
+        if score_report:
+            score_file_path = str(Path(score_report) / "score.json")
+            score_file = open(score_file_path)
+            score_data = json.load(score_file)
 
-        data_transformation_pipeline = load(
-            (Path(preparation_pipeline_path) / "preparation_pipeline.joblib")
-        )
+            tags = {
+                "silhouette": score_data["silhouette"],
+                "dunn_index": score_data["dunn_index"],
+                "inertia": score_data["inertia"],
+                "build_id": build_reference,
+            }
 
-        sklearn_pipeline = Pipeline(
-            [("preprocessing", data_transformation_pipeline), ("clustering", model)]
-        )
+        run_file = open(model_metadata)
+        model_metadata = json.load(run_file)
+        run_uri = model_metadata["run_uri"]
 
-        with mlflow.start_run(run_id=os.environ["AZUREML_ROOT_RUN_ID"], nested=True):
-            mlflow.sklearn.log_model(sklearn_pipeline, model_name)
+        model_version = mlflow.register_model(run_uri, model_name)
 
-            run_id = mlflow.active_run().info.run_id
+        client = mlflow.MlflowClient()
 
-            run_uri = f"runs:/{run_id}/{model_name}"
-
-            model_version = mlflow.register_model(run_uri, model_name)
-
-            client = mlflow.MlflowClient()
-            client.set_model_version_tag(
-                name=model_name,
-                version=model_version.version,
-                key="silhouette",
-                value=silhouette,
-            )
-            client.set_model_version_tag(
-                name=model_name,
-                version=model_version.version,
-                key="dunn_index",
-                value=dunn_index,
-            )
-            client.set_model_version_tag(
-                name=model_name,
-                version=model_version.version,
-                key="inertia",
-                value=inertia,
-            )
-
-            client.set_model_version_tag(
-                name=model_name,
-                version=model_version.version,
-                key="build_id",
-                value=build_reference,
-            )
+        if score_report:
+            for key, value in tags.items():
+                client.set_model_version_tag(
+                    name=model_name,
+                    version=model_version.version,
+                    key=key,
+                    value=value,
+                )
+                # logger.info(
+                #     f"name: {model_name}, version: {model_version.version}, key: {key}, value: {value}"
+                # )
 
         logger.info(str(model_version))
+
         mlops_results = {
             "model_name": model_name,
             "model_version": model_version.version,
         }
-        with open(Path(mlops_results_path), "w") as json_file:
+
+        path_azureml_outputs = str(Path(azureml_outputs))
+        logger.info(f"path_azureml_outputs: {path_azureml_outputs}")
+        with open(path_azureml_outputs, "w") as json_file:
             json.dump(mlops_results, json_file, indent=4)
 
     except Exception as ex:
@@ -92,6 +84,11 @@ def main(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("register_model")
+    parser.add_argument(
+        "--model_metadata",
+        type=str,
+        help="model metadata on Machine Learning Workspace",
+    )
     parser.add_argument("--model_name", type=str, help="model name to be registered")
     parser.add_argument(
         "--score_report",
@@ -104,24 +101,18 @@ if __name__ == "__main__":
         help="Original AzDo build id that initiated experiment",
     )
     parser.add_argument(
-        "--preparation_pipeline_path",
+        "--azureml_outputs",
         type=str,
-        help="Path to the folder where the pipeline is stored",
-    )
-    parser.add_argument("--model", type=str, help="Path to model")
-    parser.add_argument(
-        "--mlops_results",
-        type=str,
+        required=False,
         help="UriFile output with results of the model registration",
     )
 
     args = parser.parse_args()
 
     main(
+        model_metadata=args.model_metadata,
         model_name=args.model_name,
         score_report=args.score_report,
         build_reference=args.build_reference,
-        preparation_pipeline_path=args.preparation_pipeline_path,
-        model=args.model,
-        mlops_results_path=args.mlops_results,
+        azureml_outputs=args.azureml_outputs,
     )

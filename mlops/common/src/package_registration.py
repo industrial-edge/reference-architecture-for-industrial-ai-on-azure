@@ -1,7 +1,3 @@
-# Copyright (C) 2023 Siemens AG
-#
-# SPDX-License-Identifier: MIT
-
 import argparse
 import json
 import os
@@ -37,6 +33,9 @@ def main(
     deployment package and registered in the Model registry.
     """
 
+    logger.info(f"model_name: {model_name}")
+    logger.info(f"model_version: {model_version}")
+
     ml_client = get_client(
         subscription_id=subscription_id,
         resource_group_name=resource_group_name,
@@ -70,9 +69,10 @@ def main(
         config = yaml.safe_load(config_file)
 
     pipeline_info = config["dataFlowPipelineInfo"]
-    package_name = pipeline_info["projectName"]
     package_version = pipeline_info["dataFlowPipelineVersion"]
     package_id = pipeline_info["packageId"]
+
+    package_name = pipeline_info["projectName"] + "_edge"
 
     logger.info("package to be moved: %s\n to: %s", package_path, workdir)
     # pipeline configuration package must be copied from read-only mounted file system
@@ -82,19 +82,15 @@ def main(
     )  # the package zip name is originally the input name of the job
     logger.info("package moved to %s", package_path)
 
-    logger.info(
-        "Package info: \nname: %s, version: %s, id: %s",
-        package_name,
-        package_version,
-        package_id,
-    )
-    package_name_edge = "-".join(package_name.split()) + "-edge"
+    logger.info(f"package_name: {package_name}")
+    logger.info(f"package_version: {package_version}")
+    logger.info(f"package_id: {package_id}")
 
     edge_package_path = deployment.convert_package(package_path)
     register_package(
         ml_client=ml_client,
         package_path=edge_package_path,
-        package_name=package_name_edge,
+        package_name=package_name,
         package_version=package_version,
         package_id=package_id,
         model_tags=model_tags,
@@ -103,7 +99,7 @@ def main(
     )
 
     registry_results_content = {
-        "edge_package_name": package_name_edge,
+        "edge_package_name": package_name,
         "edge_package_version": package_version,
         "edge_package_id": package_id,
     }
@@ -175,7 +171,6 @@ if __name__ == "__main__":
         type=str,
         help="File with the computed metrics",
     )
-
     parser.add_argument(
         "--resource_group_name", type=str, help="Azure Machine learning resource group"
     )

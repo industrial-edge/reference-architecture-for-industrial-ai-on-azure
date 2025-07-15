@@ -1,7 +1,3 @@
-# Copyright (C) 2023 Siemens AG
-#
-# SPDX-License-Identifier: MIT
-
 $schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
 name: train_clustering_model
 display_name: TrainClusteringModel
@@ -10,12 +6,18 @@ type: command
 inputs:
   training_data:
     type: uri_folder
+  raw_data:
+    type: uri_folder
 outputs:
   model_output:
     type: uri_folder
+  model_metadata:
+    type: uri_file
 code: ./../../
 environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest
 command: >-
   python -m state_identifier.src.train.train
   --training_data ${{inputs.training_data}}
+  --raw_data ${{inputs.raw_data}}
   --model_output ${{outputs.model_output}}
+  --model_metadata ${{outputs.model_metadata}}

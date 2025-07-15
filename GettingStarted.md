@@ -4,42 +4,39 @@ Copyright (C) 2023 Siemens AG
 SPDX-License-Identifier: MIT
 -->
 
-# From Zero to Hero
-This document explains the steps to take in order to experience the workflow with Siemens Industrial AI Portfolio with a smooth integration with Microsoft Azure Cloud. The process is an example implementation of the [Reference Architecture for Siemens and Microsoft Customers in the Industrial AI Space](https://techcommunity.microsoft.com/t5/azure-architecture-blog/a-reference-architecture-for-siemens-and-microsoft-customers-in/ba-p/4077589) article.
+# Industrial AI Azure Enablement From Zero to Hero
+
+This document explains the steps to take in order to experience the workflow with Siemens [Industrial Artificial Intelligence Portfolio](https://www.siemens.com/global/en/products/automation/topic-areas/artificial-intelligence-in-industry/industrial-ai-enabled-operations.html) with a smooth integration with Microsoft Azure Cloud. The process is an example implementation of the [Reference Architecture for Siemens and Microsoft Customers in the Industrial AI Space](https://techcommunity.microsoft.com/t5/azure-architecture-blog/a-reference-architecture-for-siemens-and-microsoft-customers-in/ba-p/4077589) article.
 
 By the end of these steps you will have the infrastructure with all of necessary resources, keys and configurations.
-
-
-<!-- ![infra.png](./docs/infra/images/infra.png) -->
-![azure-siemens-infra.png](./docs/infra/images/azure-siemens-infra.png)
-
 
 [[_TOC_]]
 
 
-## 1. Clone the repository
+## 1. Architecture Overview
 
-You can either clone the repository or download as a zip file with all of the contents.  
-The command to be used can be found on the top right of the repository main page, or you can find a link or button to download the whole repository in a single zip file.
-To clone the repository you could use ssh or https link
 
-```
-# using SSH
-git clone git@github.com:industrial-edge/reference-architecture-for-industrial-ai-on-azure.git
+###
+This representation shows how Siemens Industrial AI applications can be used in cooperation with Azure Cloud. The specific configurations of these applications and resources will be detailed in this repository:
 
-# or HTTPs
-git clone https://github.com/industrial-edge/reference-architecture-for-industrial-ai-on-azure.git
-```
+![azure-siemens-infra.png](./docs/infra/images/industrialai-azure-diagram.drawio.png)
 
-## 2. Using Visual Studio Code with Dev Container
+## 2. Requirements
 
-Prerequisites:
+### Prerequisites
 - Visual Studio Code (VS Code)
 - Docker service
+- Access to Mmicrosoft Azure Cloud
+- Microsoft Azure Subscription
+- Installed AI Model Manager application
+- Installed AI Model Monitor application
+
+
+### Using Visual Studio Code with Dev Container
 
 The development of the project has been done using `VS Code`, which allows you to use our development enviroment saved as a [`devcontainer`](https://code.visualstudio.com/docs/devcontainers/containers).
 This feature available on `VS Code` is based on docker container and will build a docker image from the given definition done inside the folder [.devcontainer](.devcontainer).  
-Once the project is opened in `VS Code`, the IDE recognizes the folder `.devcontainer` and asks if you want to reopen the project in the devcontainer.  
+Once the project is opened in `VS Code`, the IDE recognizes the folder `./.devcontainer` and asks if you want to reopen the project in the devcontainer.  
 Chosing the option `Build and Reopen in Container` the VS Code builds a docker image and runs a docker container from this image. Then `VS Code` reopens the project inside the docker container where all required softwares/libraries are installed.  
 __Note__: By using VS Code in Windows Subsystem for Linux (WSL), devcontainer usage requires WSL version 2.
 
@@ -71,7 +68,7 @@ export LOCATION='location'
 ```
 
 ```
-Attention !!!
+⚠️ Attention !!!
 Never share or commit those values into a code repository, keep those values secret.
 ```
 
@@ -134,7 +131,6 @@ If you navigate to the created Azure ML workspace, you can find all related info
 contains information about the `Azure ML Workspace` where the `training` and `packaging` pipelines should be executed.
 - [delivery configuration](./mlops/config/delivery_config.json):  
 contains information for the pipeline `delivery` which is responsible to deliver a packaged ML Model to a connected `AI Model Manager` application.  
-Detailed explanation on the variables can be found in document [gitlab pipelines](./docs/mlops/gitlab_pipelines.md#load_config_variables) under section `load_config_variables`.
 
 With the `jq` command below you can read the configuration and set the environment variables for the model `image_classification`. By changing the index `1` to `0` in the brackets, you can switch to the model `state_identifier`.
 
@@ -176,7 +172,8 @@ python -m mlops.common.pipeline.data_asset_creation_pipeline \
                 --display_name data_asset_creation_${ML_MODEL_CONFIG_NAME}_${BUILD_REFERENCE} \
                 --environment_name data_asset_creation_${ENVIRONMENT_NAME} \
                 --conda_path ${CONDA_PATH} \
-                --env_base_image_name ${ENV_BASE_IMAGE_NAME}
+                --update_env True
+
 ```
 
 ### Training Pipeline
@@ -185,7 +182,7 @@ First, you probably want to create and train a model, check its performance and 
 This job is done via the python module `mlops_pipeline` and can be triggered with the command below.  
 
 ```bash
-python -m mlops.${ML_MODEL_CONFIG_NAME}.pipeline.mlops_pipeline \
+python -m mlops.${MODEL_BASE_NAME}.pipeline.mlops_pipeline \
             --build_reference ${BUILD_REFERENCE} \
             --subscription_id ${ARM_SUBSCRIPTION_ID} \
             --resource_group_name ${RESOURCE_GROUP_NAME} \
@@ -195,15 +192,15 @@ python -m mlops.${ML_MODEL_CONFIG_NAME}.pipeline.mlops_pipeline \
             --cluster_region ${CLUSTER_REGION} \
             --deploy_environment ${ENV_NAME}  \
             --experiment_name ${EXPERIMENT_BASE_NAME} \
-            --display_name training_${ML_MODEL_CONFIG_NAME} \
+            --display_name training_${MODEL_BASE_NAME} \
             --wait_for_completion True \
             --environment_name training_${ENVIRONMENT_NAME} \
-            --env_base_image_name ${ENV_BASE_IMAGE_NAME} \
             --model_name ${MODEL_BASE_NAME} \
             --conda_path ${CONDA_PATH} \
-            --update_env True \
             --output_file run_id.txt \
-            --asset_name ${ASSET_NAME_PR}
+            --asset_name ${ASSET_NAME_PR} \
+            --azureml_outputs pipeline_job_mlops_results \
+            --update_env True
 ```
 
 Once the pipeline is executed, you can check the results in the `Pipelines` menu item of `Azure ML Studio`.  
@@ -217,9 +214,7 @@ Once you have the model created and trained, you should create an `Inference Pip
 
 Here we also have some extra parameters to add:
 ```bash
-export MODEL_NAME='my-model'
-export MODEL_VERSION='1'
-export PACKAGE_NAME='my-package'
+export MODEL_VERSION='model_version'
 ```
 On this purpose we also have a Python script which does the job and your only task is to set the required parameters as we did in the previous `MLOps Pipeline`.
 ```bash
@@ -233,16 +228,16 @@ python -m mlops.common.pipeline.packaging_pipeline \
             --cluster_region ${CLUSTER_REGION} \
             --deploy_environment ${ENV_NAME}  \
             --experiment_name ${EXPERIMENT_BASE_NAME} \
-            --display_name packaging_${ML_MODEL_CONFIG_NAME} \
+            --display_name packaging_${MODEL_BASE_NAME} \
             --wait_for_completion True \
-            --environment_name packaging_env \
-            --model_type ${ML_MODEL_CONFIG_NAME} \
-            --model_name ${MODEL_NAME} \
+            --environment_name packaging_${MODEL_BASE_NAME} \
+            --model_type ${MODEL_BASE_NAME} \
+            --model_name ${MODEL_BASE_NAME} \
+            --conda_path ${CONDA_PATH} \
             --model_version ${MODEL_VERSION} \
-            --package_name ${PACKAGE_NAME} \
-            --conda_path mlops/common/environment/packaging/conda.yml \
-            --raw_data ${ASSET_NAME_PR} \
             --output_file run_id.txt \
+            --raw_data ${ASSET_NAME_PR} \
+            --azureml_outputs registry_results \
             --update_env True
 ```
 
@@ -253,7 +248,7 @@ More details on the Packaging pipeline can be found in document [Model Packaging
 ### Package Delivery Pipeline
 
 When the `Edge Package` is created and tested, you can deploy it to `AI Model Manager`.  
-Before you also need to connect your `AI Model Manager` to the created `IoT Hub`. To do so please refer to the section [Onboard AI Model Manager](#ai-model-manager) in [Shopfloor requirements](#shopfloor-requirements).
+Before you also need to connect your `AI Model Manager` to the created `IoT Hub`. To do so please refer to the section [Onboard AI Model Manager](#ai-model-manager).
 
 Here we also have some extra parameters to define:
 
@@ -274,7 +269,7 @@ Trigger the delivery pipeline:
 ```bash
 python -m mlops.common.pipeline.delivery_pipeline \
             --build_reference ${BUILD_REFERENCE} \
-            --subscription_id ${SUBSCRIPTION_ID} \
+            --subscription_id ${ARM_SUBSCRIPTION_ID} \
             --resource_group_name ${RESOURCE_GROUP_NAME} \
             --workspace_name ${WORKSPACE_NAME} \
             --cluster_name ${CLUSTER_NAME} \
@@ -283,10 +278,8 @@ python -m mlops.common.pipeline.delivery_pipeline \
             --experiment_name ${EXPERIMENT_BASE_NAME} \
             --display_name delivery_${ML_MODEL_CONFIG_NAME} \
             --wait_for_completion True \
-            --update_env True \
-            --env_base_image_name ${ENV_BASE_IMAGE_NAME_DELIVERY} \
             --conda_path ${CONDA_PATH_DELIVERY} \
-            --environment_name delivery_${ENVIRONMENT_NAME} \
+            --environment_name delivery \
             --keyvault_name ${KEYVAULT_NAME} \
             --iot_hub_connection_string_secret_name ${IOT_HUB_CONNECTION_STRING_SECRET_NAME_DELIVERY} \
             --event_hub_connection_string_secret_name ${EVENT_HUB_CONNECTION_STRING_SECRET_NAME_DELIVERY} \
@@ -294,23 +287,30 @@ python -m mlops.common.pipeline.delivery_pipeline \
             --output_file run_id.txt \
             --edge_package_name ${PACKAGE_NAME} \
             --edge_package_version ${PACKAGE_VERSION} \
-            --deploy_environment ${ENV_NAME}
+            --deploy_environment ${ENV_NAME} \
+            --update_env True
 ```
 
 The successful Pipeline will manage the messaging between `IoT Hub` and `AI Model Manager` in order to download the package created above.  
 More details on the Model Delivery pipeline can be found in document [Model Delivery](./docs/handover/mlops/model_delivery.md).
 
-## 5. Industrial AI Applications
+## 5. Industrial AI
+
 Before you can deploy and run an `Inference Pipeline`, you need to install the required Siemens Industrial AI Applications on IT and OT level. You will need `AI Inference Server` to execute the Pipeline, `AI Model Monitor` to collect metrics and logs that can be uploaded to the Azure Cloud and `AI Model Manager` who takes care of downloading and importing `Pipeline Packages` from Azure Cloud to `AI Inference Server`.
+
+### AI Software Development Kit
+
+[AI SDK](https://www.siemens.com/global/en/products/automation/topic-areas/artificial-intelligence-in-industry/industrial-ai-enabled-operations/software-development-kit.html): Package your model (incl. pre and post processing logic) into standard inference pipeline running on AI Inference Server using our Python Software Development Kit by keeping your existing coding and training environment.
 
 ### AI Inference Server
 
-`AI Inference Server` is the *Edge Application* you have on your Operation side and runs the Pipeline created above. This *Application* should be already connected to your `AI Model Manager`, so the *Model Manager* is able to import *Pipeline Package* to *AI Inference Server*.  
+[AI Inference Server](https://www.siemens.com/global/en/products/automation/topic-areas/artificial-intelligence-in-industry/industrial-ai-enabled-operations/ai-inference-server.html):
+Edge Application you have on your Operation side and runs the Pipeline created above. This *Application* should be already connected to your `AI Model Manager`, so the *Model Manager* is able to import *Pipeline Package* to *AI Inference Server*.  
 More details on how to install and manage *AI Inference Server* with *AI Model Manager* can be found in the User Manual of the Edge applications.
 
 ### AI Model Manager
 
-[AI Model Manager](https://www.dex.siemens.com/edge/build-your-solution/ai-model-manager): Lets you keep track of all AI model deployments on Edge. Configure automated model downloads and deployment from cloud of AI providers to ease and speed up the integration of AI Models on the shop floor.
+[AI Model Manager](https://www.siemens.com/global/en/products/automation/topic-areas/artificial-intelligence-in-industry/industrial-ai-enabled-operations/ai-model-manager.html): Lets you keep track of all AI model deployments on Edge. Configure automated model downloads and deployment from cloud of AI providers to ease and speed up the integration of AI Models on the shop floor.
 
 `AI Model Manager` establihes the communication with *Azure IoT Hub*, downloads *Pipeline packages* and imports them into *AI Inference Server*.  In order to have the communication between Model Manager and Azure IoT Hub ensured and secured, you need to have a certificate for the chosen *AI Model Manager*, register the device in IoT Hub, and register a `Workspace` in *AI Model Manager* with all of the information about the communication.
 
@@ -320,7 +320,9 @@ The jobs of `Onboarding workflow` can be done with bash script [create_model_man
 export IOT_HUB_NAME='iot_hub_name'
 export DEVICE_ID='device_id'
 
-./devops/pipeline/az_cli_scripts/create_model_manager_identity.sh \
+cd devops/pipeline/az_cli_scripts
+
+./create_model_manager_identity.sh \
     -s ${ARM_SUBSCRIPTION_ID} \
     -k ${KEYVAULT_NAME} \
     -S true \
@@ -352,12 +354,12 @@ Now you can download this configuration file from `Key Vault` secrets, and creat
     -c false  # Use Device Code authentication (true / false)
 ```
 
-When the workspace is connected to `Azure IoT Hub`, you can get back to section [Model Delivery](#pipeline-package-deployment) and download your created `Pipeline Package`.
+When the workspace is connected to `Azure IoT Hub`, you can get back to section [Package Delivery Pipeline](#package-delivery-pipeline) and download your created `Pipeline Package`.
 
 
 ### AI Model Monitor
 
-[AI Model Monitor](https://www.dex.siemens.com/edge/build-your-solution/ai-model-monitor): AI Model Monitor is an integrated module for AI Model Manager that tracks inference performance, detects HW and SW issues and helps you to evaluate data quality metrics and potential data & performance drifts.
+[AI Model Monitor](https://www.siemens.com/global/en/products/automation/topic-areas/artificial-intelligence-in-industry/industrial-ai-enabled-operations/ai-model-monitor.html): AI Model Monitor is an integrated module for AI Model Manager that tracks inference performance, detects HW and SW issues and helps you to evaluate data quality metrics and potential data & performance drifts.
 
 Similarly to `AI Model Manager`, `AI Model Monitor` also uses a secured communication channel to upload its collected metrics to the Cloud.
 
@@ -396,3 +398,32 @@ get_model_monitor_configuration.sh
 ```
 
 For `AI Model Monitor`, the required credentials can be read from the file and the *Edge Application* can be configured as it is described in its User Manual. By starting the `AI Model Monitor`, the metrics start to be uploaded to the Azure Cloud, and can be investigated.
+
+
+## Documentation
+
+You can find further documentation and help in the following links
+  - [Industrial Edge Hub](https://iehub.eu1.edge.siemens.cloud/#/documentation)
+  - [Industrial Edge Forum](https://www.siemens.com/industrial-edge-forum)
+  - [Industrial Edge landing page](https://new.siemens.com/global/en/products/automation/topic-areas/industrial-edge/simatic-edge.html)
+  - [Industrial Edge Learning Path](https://siemens-learning-simaticedge.sabacloud.com/)
+  - [Industrial Artifical Intelligence](https://www.siemens.com/global/en/products/automation/topic-areas/artificial-intelligence-in-industry/industrial-ai-enabled-operations.html)
+
+
+## Contact us
+
+[Industrial Artificial Intelligence - Contact us](https://www.siemens.com/global/en/products/automation/topic-areas/artificial-intelligence-in-industry/industrial-ai-enabled-operations.html#Howwecansupportyouletsconnectandtalk)
+
+For support requests contact your regional contact person.
+They take care of your concerns and give you feedback.
+
+## Contribution
+
+Thank you for your interest in contributing. Anybody is free to report bugs, unclear documentation, and other problems regarding this repository in the Issues section.
+Additionally everybody is free to propose any changes to this repository using Pull Requests.
+
+If you haven't previously signed the [Siemens Contributor License Agreement](https://cla-assistant.io/industrial-edge/) (CLA), the system will automatically prompt you to do so when you submit your Pull Request. This can be conveniently done through the CLA Assistant's online platform. Once the CLA is signed, your Pull Request will automatically be cleared and made ready for merging if all other test stages succeed.
+
+## Licence and Legal Information
+
+Please read the [Legal information](LICENSE.md).

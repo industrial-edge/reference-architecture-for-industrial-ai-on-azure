@@ -1,7 +1,3 @@
-# Copyright (C) 2023 Siemens AG
-#
-# SPDX-License-Identifier: MIT
-
 data "terraform_remote_state" "agents" {
   backend = "azurerm"
   config = {

@@ -1,62 +1,67 @@
-# Copyright (C) 2023 Siemens AG
-#
-# SPDX-License-Identifier: MIT
-
 import argparse
 import json
 import os
 from pathlib import Path
 from typing import List, Optional, Tuple
-
-import keras
-import matplotlib.pylab as plt
 import mlflow
+import matplotlib.pylab as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
 import tensorflow as tf
-from common.src.base_logger import get_logger
 from PIL import Image
 from sklearn.metrics import classification_report, confusion_matrix
+
+from azureml.core import Run
+
+from common.src.base_logger import get_logger
 
 logger = get_logger(__name__)
 
 
 def main(test_data, model, score_report, image_width, image_height):
 
-    lines = [
-        f"Model path: {model}",
-        f"Test data path: {test_data}",
-        f"Scoring output path: {score_report}",
-    ]
+    run = Run.get_context()
+    mlflow.set_tracking_uri(run.experiment.workspace.get_mlflow_tracking_uri())
+    mlflow.autolog()
 
-    for line in lines:
-        logger.info(line)
+    with mlflow.start_run():
 
-    image_size = (image_width, image_height)
+        lines = [
+            f"Model path: {model}",
+            f"Test data path: {test_data}",
+            f"Scoring output path: {score_report}",
+        ]
 
-    class_labels = [path.name for path in Path(test_data).iterdir() if path.is_dir()]
-    class_labels.sort()
+        for line in lines:
+            logger.info(line)
 
-    image_generator = tf.keras.preprocessing.image.ImageDataGenerator()
-    test_data_tf = image_generator.flow_from_directory(
-        test_data, target_size=image_size
-    )
-    # Load the model from input port
-    model = tf.keras.models.load_model((Path(model) / "classification_mobilnet.h5"))
-    encoded_preds, encoded_labels = encoded_predictions_for_entire_dataset(
-        model, test_data_tf
-    )
+        image_size = (image_width, image_height)
 
-    metrics, confusion_m_df, clf_report = evaluate(
-        encoded_preds, encoded_labels, class_labels
-    )
+        class_labels = [
+            path.name for path in Path(test_data).iterdir() if path.is_dir()
+        ]
+        class_labels.sort()
 
-    write_results(metrics, confusion_m_df, clf_report, score_report)
+        image_generator = tf.keras.preprocessing.image.ImageDataGenerator()
+        test_data_tf = image_generator.flow_from_directory(
+            test_data, target_size=image_size
+        )
+        # Load the model from input port
+        model = tf.keras.models.load_model((Path(model) / "classification_mobilnet.h5"))
+        encoded_preds, encoded_labels = encoded_predictions_for_entire_dataset(
+            model, test_data_tf
+        )
+
+        metrics, confusion_m_df, clf_report = evaluate(
+            encoded_preds, encoded_labels, class_labels
+        )
+
+        write_results(metrics, confusion_m_df, clf_report, score_report)
 
 
 def encoded_predictions_for_entire_dataset(
-    model: keras.engine.functional.Functional, data: tf.data.Dataset
+    model: tf.keras.Model, data: tf.data.Dataset
 ) -> Tuple[np.array, np.array]:
     """
     Predict the labels for all the batches and replace the outputs
@@ -67,7 +72,7 @@ def encoded_predictions_for_entire_dataset(
     with N being the number of samples and c the number of classes
 
     Arguments:
-    model: tf.python.keras.engine.training.Model
+    model: tf.keras.Model
         The loaded model which will makes the predictions
     data: tf.data.Dataset
         Dataset containing test data
@@ -90,7 +95,7 @@ def encoded_predictions_for_entire_dataset(
             predictions = np.concatenate((predictions, predictions_batch), axis=0)
             labels = np.concatenate((labels, labels_batch), axis=0)
 
-        # Needed to avoid an infinte loop
+        # Needed to avoid an infinite loop
         if batch_counter == batches - 1:
             break
 
@@ -203,7 +208,7 @@ def write_results(
     )
 
     # Save evaluation results
-    with open(os.path.join(output_folder, "metrics.json"), "w") as json_file:
+    with open(os.path.join(output_folder, "score.json"), "w") as json_file:
         json.dump(metrics, json_file, indent=4)
 
 

@@ -1,7 +1,3 @@
-# Copyright (C) 2023 Siemens AG
-#
-# SPDX-License-Identifier: MIT
-
 $schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
 name: package_delivery_to_aimm
 display_name: Package delivery to AI Model Manager
@@ -24,7 +20,7 @@ inputs:
   deploy_environment:
     type: string
 code: ./../../
-environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest # dummy
+environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest
 command: >-
   python -m common.src.package_delivery
   --device_id ${{inputs.device_id}}
@@ -34,5 +30,3 @@ command: >-
   --iot_hub_connection_string_secret_name ${{inputs.iot_hub_connection_string_secret_name}}
   --event_hub_connection_string_secret_name ${{inputs.event_hub_connection_string_secret_name}}
   --deploy_environment ${{inputs.deploy_environment}}
-
-

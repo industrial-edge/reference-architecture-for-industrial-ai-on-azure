@@ -1,9 +1,3 @@
-<!--
-Copyright (C) 2023 Siemens AG
-
-SPDX-License-Identifier: MIT
--->
-
 # Infrastructure code structure for machine learning workspace
 
 ## Introduction

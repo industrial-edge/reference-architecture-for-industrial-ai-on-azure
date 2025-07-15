@@ -1,7 +1,3 @@
-# Copyright (C) 2023 Siemens AG
-#
-# SPDX-License-Identifier: MIT
-
 from azure.ai.ml.entities import Data
 from azure.ai.ml import MLClient
 from azure.ai.ml.constants import AssetTypes

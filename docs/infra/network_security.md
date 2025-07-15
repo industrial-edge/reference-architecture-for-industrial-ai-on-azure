@@ -1,9 +1,3 @@
-<!--
-Copyright (C) 2023 Siemens AG
-
-SPDX-License-Identifier: MIT
--->
-
 # Introduction
 This document describes the changes made to the infrastructure to improve network security of the resources deployed in the cloud. The architecture diagram below illustrates the different components, associated subnets, VNETs and resources introduced in the revised architecture.
 

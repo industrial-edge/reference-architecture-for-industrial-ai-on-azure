@@ -1,7 +1,3 @@
-# Copyright (C) 2023 Siemens AG
-#
-# SPDX-License-Identifier: MIT
-
 resource "tls_private_key" "dev" {
   count     = var.vnet_enabled ? 1 : 0
   algorithm = "RSA"

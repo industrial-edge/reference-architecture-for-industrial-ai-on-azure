@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (C) 2023 Siemens AG
-# SPDX-License-Identifier: MIT
-Pillow==9.4.0
-tflite_runtime==2.7.0
+Pillow==10.3.0
+tflite_runtime==2.14.0
+opencv_python_headless==4.9.0.80
+numpy==1.24.2

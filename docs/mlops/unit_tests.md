@@ -1,9 +1,3 @@
-<!--
-Copyright (C) 2023 Siemens AG
-
-SPDX-License-Identifier: MIT
--->
-
 ### Executing the unit tests on your local environment
 
 If all the required packages work as expected in your local environment you can simply execute the unit tests using the command below in the appropiate directory:

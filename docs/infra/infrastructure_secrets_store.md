@@ -1,9 +1,3 @@
-<!--
-Copyright (C) 2023 Siemens AG
-
-SPDX-License-Identifier: MIT
--->
-
 # Secrets Store - Azure Key Vault best practices
 
   The solution uses Azure Key Vault as a secure location for storing secrets and making them available as required to various parts of the project.

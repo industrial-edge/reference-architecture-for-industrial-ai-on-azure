@@ -1,14 +1,21 @@
-# Copyright (C) 2023 Siemens AG
-#
-# SPDX-License-Identifier: MIT
-
 $schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
 name: score_model
 version: 1
 display_name: ScoreModel
 type: command
+# inputs:
+
+#   model:
+#     type: uri_folder
+#   raw_data:
+#     type: uri_folder
+# outputs:
+#   score_report:
+#     type: uri_folder
 inputs:
   prep_data:
+    type: uri_folder
+  raw_data:
     type: uri_folder
   model:
     type: uri_folder
@@ -20,7 +27,11 @@ code: ./../../
 command: >-
   python -m state_identifier.src.score.score
   --prep_data ${{inputs.prep_data}}
+  --raw_data ${{inputs.raw_data}}
   --model ${{inputs.model}}
   --score_report ${{outputs.score_report}}
 
-
+# --raw_data ${{inputs.raw_data}}
+# --model ${{inputs.model}}
+# --score_report ${{outputs.score_report}}
+  # --test_data ${{inputs.test_data}}

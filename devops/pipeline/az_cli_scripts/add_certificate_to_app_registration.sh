@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# Copyright (C) 2023 Siemens AG
-#
-# SPDX-License-Identifier: MIT
-
 echo "Add Certificate to App Registration"
 
 helpFunction()

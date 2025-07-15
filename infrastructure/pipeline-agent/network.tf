@@ -1,7 +1,3 @@
-# Copyright (C) 2023 Siemens AG
-#
-# SPDX-License-Identifier: MIT
-
 resource "azurerm_virtual_network" "agent_vnet" {
   name                = module.common.agent_vnet_name
   address_space       = [var.agent_vnet_address_space]

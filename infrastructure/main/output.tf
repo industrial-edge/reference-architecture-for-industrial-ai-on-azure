@@ -1,7 +1,3 @@
-# Copyright (C) 2023 Siemens AG
-#
-# SPDX-License-Identifier: MIT
-
 output "resource_group_name" {
   description = "The name of the resouce group containing all resources"
   value       = azurerm_resource_group.rg.name
@@ -72,4 +68,12 @@ output "vpn_client_cert" {
 output "vpn_client_key" {
   value     = module.vnet.client_key
   sensitive = true
+}
+
+output "compute_cluster_name" {
+  value = module.ml.compute_cluster_name
+}
+
+output "machine_learning_workspace_name" {
+  value = module.ml.machine_learning_workspace_name
 }
