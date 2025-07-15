@@ -1,5 +1,5 @@
 # Copyright (C) Siemens AG 2021. All Rights Reserved. Confidential.
-
+# SPDX-License-Identifier: MIT
 import sys
 import json
 import cv2
