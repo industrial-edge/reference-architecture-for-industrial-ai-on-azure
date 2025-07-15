@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
 output "key_vault_id" {
   description = "The name of the shared Key Vault"
   value       = azurerm_key_vault.kv.id

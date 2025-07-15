@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
 output "vnet_id" {
   value     = var.vnet_enabled ? azurerm_virtual_network.vnet[0].id : null
   sensitive = true

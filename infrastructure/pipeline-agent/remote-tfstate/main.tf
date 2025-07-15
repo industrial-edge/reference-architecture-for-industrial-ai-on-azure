@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
 data "terraform_remote_state" "agents" {
   backend = "azurerm"
   config = {

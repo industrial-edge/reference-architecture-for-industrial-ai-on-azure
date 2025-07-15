@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
 resource "azurerm_subnet" "training_subnet" {
   count                = var.vnet_enabled ? 1 : 0
   name                 = module.common.ml_compute_cluster_subnet_name

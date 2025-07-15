@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
 resource "random_string" "suffix" {
   length  = 6
   special = false

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Siemens AG
+#
+# SPDX-License-Identifier: MIT
 
 variable "resource_group_name" {
   type        = string

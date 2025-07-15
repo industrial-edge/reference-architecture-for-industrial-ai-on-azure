@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
 module "common" {
   source            = "../common"
   deployment_source = var.deployment_source

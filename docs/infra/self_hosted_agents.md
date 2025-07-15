@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 Siemens AG
+
+SPDX-License-Identifier: MIT
+-->
+
 # Self-Hosted Agents
 Self-hosted agents allow us to manage and customize the lifecycle, environments and dependencies of the agent software running the Azure DevOps pipelines. This project uses self-hosted agents primarily for two reasons
 

@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
 output "resource_group_name" {
   description = "The name of the resouce group containing all resources"
   value       = azurerm_resource_group.rg.name
