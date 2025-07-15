@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
 mlflow==2.20.3
 backports-tempfile==1.0
 cloudpickle==3.0.0

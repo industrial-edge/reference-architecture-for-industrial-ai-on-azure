@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
 import numpy as np
 from sklearn.metrics.pairwise import euclidean_distances
 

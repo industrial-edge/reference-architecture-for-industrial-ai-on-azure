@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
 $schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
 name: score_model
 version: 1

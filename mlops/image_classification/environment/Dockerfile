@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
 FROM mcr.microsoft.com/azureml/openmpi5.0-ubuntu24.04:20250217.v1
 
 COPY *.whl /tmp/

@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
 pytest==8.3.5
 mlflow==2.20.3
 tsfresh==0.21.0
