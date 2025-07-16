@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Siemens AG
+# SPDX-FileCopyrightText: 2025 Siemens AG
 #
 # SPDX-License-Identifier: MIT
 
@@ -36,7 +36,7 @@ command: >-
   --subscription_id ${{inputs.subscription_id}}
   --workspace_name ${{inputs.workspace_name}}
   --resource_group_name ${{inputs.resource_group_name}}
-  --metrics_results ${{inputs.metrics_results}}
   --model_name ${{inputs.model_name}}
   --model_version ${{inputs.model_version}}
+  --metrics_results ${{inputs.metrics_results}}
   --registry_results ${{outputs.registry_results}}

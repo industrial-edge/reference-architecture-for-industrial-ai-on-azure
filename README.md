@@ -14,9 +14,9 @@ By the end of these steps you will have the infrastructure with all necessary re
 
 Following the steps described in [Getting Started](GettingStarted.md) document, you can learn how to connect your Industrial AI Edge applications to the Azure Cloud services, and how to fulfill an MLOps workflow from ML Model creation and training to the step of Monitoring your AI Model on the shopfloor.
 
-Our [Getting Started](./GettingStarted.md) document covers the steps of how to 
-- [Clone the repository](./GettingStarted.md#1-clone-the-repository)
-- [Use Visual Studio Code with Dev Container](./GettingStarted.md#2-using-visual-studio-code-with-dev-container)
+Our [Getting Started](./GettingStarted.md) document covers the steps of how to
+- [Architecture Overview](./GettingStarted.md#1-architecture-overview)
+- [Requirements](./GettingStarted.md#2requirements)
 - [Apply Azure Infrastructure](./GettingStarted.md#3-apply-azure-infrastructure)
 - [Execute MLOps pipelines](./GettingStarted.md#4-execute-mlops-pipelines)
 - connect your Industrial AI Applications
@@ -27,7 +27,7 @@ Our [Getting Started](./GettingStarted.md) document covers the steps of how to
 ## Architecture Overview
 This representation shows how Siemens Industrial AI applications can be used in cooperation with Azure Cloud. The specific configurations of these applications and resources will be detailed in this repository:
 
-![Architecture overview](./docs/infra/images/industrialai-azure-diagram.png)
+![Architecture overview](./docs/infra/images/industrialai-azure-diagram.drawio.png)
 
 
 ## Contribution

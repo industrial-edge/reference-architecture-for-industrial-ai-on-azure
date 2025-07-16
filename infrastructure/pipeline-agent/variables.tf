@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Siemens AG
+# SPDX-FileCopyrightText: 2025 Siemens AG
 #
 # SPDX-License-Identifier: MIT
 
@@ -53,7 +53,7 @@ variable "agent_pool" {
 variable "azdo_org_service_url" {
   type        = string
   description = "The url of the organization on Azure DevOps"
-  default     = "https://dev.azure.com/<your-project>"  # Replace <your-project> with your Azure DevOps project
+  default     = "https://dev.azure.com/siemens-microsoft-iai"
 }
 
 variable "number_of_agents" {

@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Siemens AG
+# SPDX-FileCopyrightText: 2025 Siemens AG
 #
 # SPDX-License-Identifier: MIT
 
@@ -15,8 +15,8 @@ inputs:
     type: string
   model_version:
     type: string
-  package_name:
-    type: string
+  # package_name:
+  #   type: string
   subscription_id:
     type: string
   workspace_name:
@@ -27,6 +27,8 @@ inputs:
 outputs:
   package_path:
     type: uri_file
+  output_model:
+    type: uri_file
 
 environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest
 code: ./../../
@@ -34,8 +36,8 @@ command: >-
   python -m ${{inputs.model_type}}.src.package.packaging
   --model_name ${{inputs.model_name}}
   --model_version ${{inputs.model_version}}
-  --package_name ${{inputs.package_name}}
   --subscription_id ${{inputs.subscription_id}}
   --workspace_name ${{inputs.workspace_name}}
   --resource_group_name ${{inputs.resource_group_name}}
   --package_path ${{outputs.package_path}}
+  --output_model ${{outputs.output_model}}

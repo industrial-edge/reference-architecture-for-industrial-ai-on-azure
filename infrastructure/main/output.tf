@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Siemens AG
+# SPDX-FileCopyrightText: 2025 Siemens AG
 #
 # SPDX-License-Identifier: MIT
 
@@ -72,4 +72,12 @@ output "vpn_client_cert" {
 output "vpn_client_key" {
   value     = module.vnet.client_key
   sensitive = true
+}
+
+output "compute_cluster_name" {
+  value = module.ml.compute_cluster_name
+}
+
+output "machine_learning_workspace_name" {
+  value = module.ml.machine_learning_workspace_name
 }

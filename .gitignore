@@ -6,8 +6,9 @@
 **/me/
 **/backend.conf
 
-.DS_STORE
+**/.DS_STORE
 .idea
+.vscode
 __pycache__/
 
 v/*

@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Siemens AG
+# SPDX-FileCopyrightText: 2025 Siemens AG
 #
 # SPDX-License-Identifier: MIT
 
@@ -8,8 +8,10 @@ from pathlib import Path
 from typing import Tuple
 
 import mlflow
-import numpy as np
+from azureml.core import Run
+
 import tensorflow as tf
+
 from common.src.base_logger import get_logger
 
 logger = get_logger(__name__)
@@ -23,6 +25,10 @@ def main(
     image_height: int,
     dim: int,
 ):
+    run = Run.get_context()
+    mlflow.set_tracking_uri(run.experiment.workspace.get_mlflow_tracking_uri())
+    mlflow.autolog()
+
     lines = [
         f"Training data path: {training_data}",
         f"Model output path: {model_output}",
@@ -32,14 +38,30 @@ def main(
     for line in lines:
         logger.info(line)
 
-    image_size = (image_width, image_height)
+    with mlflow.start_run():
 
-    image_generator = tf.keras.preprocessing.image.ImageDataGenerator()
-    training_set = image_generator.flow_from_directory(
-        training_data, target_size=image_size
-    )
+        image_size = (image_width, image_height)
 
-    train_model(training_set, model_metadata, model_output, image_size, dim)
+        image_generator = tf.keras.preprocessing.image.ImageDataGenerator()
+        logger.info(f"image_generator: {image_generator}")
+
+        training_set = image_generator.flow_from_directory(
+            training_data, target_size=image_size
+        )
+
+        logger.info(f"training_set: {training_set}")
+
+        train_model(training_set, model_metadata, model_output, image_size, dim)
+
+        logger.info("Saving model_metadata...")
+        run_id = run.info.run_id
+        model_uri = f"runs:/{run_id}/model"
+        model_data = {"run_id": run_id, "run_uri": model_uri}
+
+        logger.info("model_metadata:\n%s", json.dumps(model_data, indent=4))
+
+        with open(model_metadata, "w") as json_file:
+            json.dump(model_data, json_file, indent=4)
 
 
 def train_model(
@@ -64,50 +86,47 @@ def train_model(
         written to Azure Blob Storage.
     """
 
-    mlflow.autolog()
+    logger.info("Started training")
+    logger.info(f"model_metadata: {model_metadata}")
 
-    with mlflow.start_run() as run:
+    feature_extractor = tf.keras.applications.MobileNet(
+        weights="imagenet", include_top=False, input_shape=(image_size + (dim,))
+    )
+    feature_extractor.trainable = False
+    logger.info(f"Type of feature extractor: {type(feature_extractor)}")
 
-        logger.info("Started training")
-        _, label_batch = training_set.next()
+    logger.info(f"training_set: {training_set}")
+    _, label_batch = next(iter(training_set))
 
-        feature_extractor = tf.keras.applications.MobileNet(
-            weights="imagenet", include_top=False, input_shape=(image_size + (dim,))
-        )
-        feature_extractor.trainable = False
+    output = feature_extractor.output
+    feature_extractor_output = tf.keras.layers.GlobalAveragePooling2D()(output)
 
-        output = feature_extractor.output
-        feature_extractor_output = tf.keras.layers.GlobalAveragePooling2D()(output)
+    classifier = tf.keras.layers.Dense(label_batch.shape[1], activation="softmax")(
+        feature_extractor_output
+    )
 
-        classifier = tf.keras.layers.Dense(label_batch.shape[1], activation="softmax")(
-            feature_extractor_output
-        )
+    model = tf.keras.Model(inputs=feature_extractor.input, outputs=classifier)
+    model.build((None,) + image_size + (3,))
 
-        model = tf.keras.Model(inputs=feature_extractor.input, outputs=classifier)
-        model.build((None,) + image_size + (3,))
+    model.compile(
+        optimizer=tf.keras.optimizers.Adam(),
+        loss=tf.keras.losses.CategoricalCrossentropy(from_logits=True),
+        metrics=["acc"],
+    )
 
-        model.compile(
-            optimizer=tf.keras.optimizers.Adam(),
-            loss=tf.keras.losses.CategoricalCrossentropy(from_logits=True),
-            metrics=["acc"],
-        )
+    model.fit(
+        training_set,
+        epochs=4,
+        steps_per_epoch=training_set.num_batches,
+        callbacks=[],
+    )
 
-        steps_per_epoch = np.ceil(training_set.samples / training_set.batch_size)
+    logger.info("Saving model")
+    temp_model_path = Path(model_output) / "classification_mobilnet.h5"
+    logger.info("temp_model_path: %s", temp_model_path)
 
-        model.fit_generator(
-            training_set,
-            epochs=4,
-            steps_per_epoch=steps_per_epoch,
-        )
+    model.save(temp_model_path)
 
-        run_id = mlflow.active_run().info.run_id
-        model_uri = f"runs:/{run_id}/model"
-        model_data = {"run_id": run.info.run_id, "run_uri": model_uri}
-
-        with open(model_metadata, "w") as json_file:
-            json.dump(model_data, json_file, indent=4)
-
-    model.save(Path(model_output) / "classification_mobilnet.h5")
     logger.info("Finished training")
 
 
@@ -129,7 +148,6 @@ if __name__ == "__main__":
     parser.add_argument(
         "--dim", type=int, default=3, help="Channels used for the image"
     )
-
     parser.add_argument("--model_output", type=str, help="Path of output model")
     parser.add_argument("--model_metadata", type=str, help="Path of model metadata")
 

@@ -1,13 +1,11 @@
-# Copyright (C) 2023 Siemens AG
 # Copyright (C) Siemens AG 2021. All Rights Reserved. Confidential.
-#
 # SPDX-License-Identifier: MIT
-
 from log_module import LogModule
 
 logger = LogModule()
 
-import inference  # should adapt to your code
+# sys.path.insert(0, str(Path('./src').resolve()))
+from state_identifier.src.si import inference
 
 logger.info("entrypoint imported")
 

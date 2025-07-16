@@ -1,5 +1,5 @@
 <!--
-Copyright (C) 2023 Siemens AG
+SPDX-FileCopyrightText: 2025 Siemens AG
 
 SPDX-License-Identifier: MIT
 -->
@@ -28,7 +28,7 @@ The requirements are:
 
 The following sequence diagram shows the main process flow.
 
-![AI Model Monitor Certificate Generation Process](image.png)
+![AI Model Monitor Certificate Generation Process](model_monitor_id.drawio.png)
 
 1. Harald requests a new Model Monitor Identity (outside the scope of this work, could be email, teams, ticket system etc).
 
@@ -94,7 +94,7 @@ One of the requirements for this work is to "Distribute certificates/config to t
 
 The configuration process can be seen in this sequence diagram.
 
-![AI Model Monitor Configuration Process](image-3.png)
+![AI Model Monitor Configuration Process](model_monitor_config.drawio.png)
 
 1. Once Harald has been notified that his request has been satisfied, he runs the `get_model_monitor_configuration.sh` script
 1. He is asked to Log In to Azure
@@ -109,3 +109,4 @@ The remaining steps are shown here for logical completion, but are not implement
 
 An issue with this approach is that Harald requires "Get Secrets" permission on the KeyVault, so is not truly minimally privileged. There is a tension between Requirements 4 & 7. For Harald to have no privileges in KeyVault, some other system component needs to be able to get secrets on his behalf. This could be implemented as an Azure hosted API (WebApp, Container, Function etc) but this contradicts requirement 7 stating there should be no custom software running in Azure.
 
+Thoughts on how to improve this situation can be found in the project [Wiki](https://dev.azure.com/siemens-microsoft-iai/Siemens-Microsoft-IAI/_wiki/wikis/Siemens-Microsoft-IAI.wiki/95/001-KeyVault-Improvements).

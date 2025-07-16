@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Siemens AG
+# SPDX-FileCopyrightText: 2025 Siemens AG
 #
 # SPDX-License-Identifier: MIT
 
@@ -13,8 +13,8 @@ inputs:
 outputs:
   prep_data:
     type: uri_folder
-  preparation_pipeline_path:
-    type: uri_folder
+  # preparation_pipeline_path:
+  #   type: uri_folder
 
 code: ./../../
 environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest
@@ -22,4 +22,5 @@ command: >-
   python -m state_identifier.src.prep.prep
   --raw_data ${{inputs.raw_data}}
   --prep_data ${{outputs.prep_data}}
-  --preparation_pipeline_path ${{outputs.preparation_pipeline_path}}
+
+# --preparation_pipeline_path ${{outputs.preparation_pipeline_path}}

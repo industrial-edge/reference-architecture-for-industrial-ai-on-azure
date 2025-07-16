@@ -1,12 +1,8 @@
-# Copyright (C) 2023 Siemens AG
 # Copyright (C) Siemens AG 2021. All Rights Reserved. Confidential.
-#
 # SPDX-License-Identifier: MIT
-
 """
-Experimental inference wrapper for standard AI Inference Server
-that feeds Vision Connector payload into
-a TensorFlow image classification model
+Experimental inference wrapper for standard AI Inference Server that feeds
+Vision Connector payload into a TensorFlow image classification model
 
 """
 
@@ -18,7 +14,7 @@ from log_module import LogModule
 logger = LogModule()
 
 # Load the TFLite model and allocate tensors.
-interpreter = tflite.Interpreter(model_path="classification_mobilnet.tflite")
+interpreter = tflite.Interpreter(model_path="models/classification_mobilnet.tflite")
 interpreter.allocate_tensors()
 
 # Get input and output tensors.
@@ -33,7 +29,8 @@ SCALE = 255
 
 def predict_from_image(pil_image):
     """
-    Takes a PIL image, scales pixel values to range [0,1] and returns the index and the probability of the predicted class.  # noqa: E501
+    Takes a PIL image, scales pixel values to range [0,1]
+    and returns the index and the probability of the predicted class.
     """
 
     input_arr = np.array(pil_image) * 1 / SCALE

@@ -1,13 +1,14 @@
-# Copyright (C) 2023 Siemens AG
+# SPDX-FileCopyrightText: 2025 Siemens AG
 #
 # SPDX-License-Identifier: MIT
 
 import os
+
 from azure.ai.ml.dsl import pipeline
 from azure.ai.ml import Input, load_component, MLClient
 from azure.identity import DefaultAzureCredential
 
-from mlops.common.pipeline.prepare_execute import read_args_and_execute
+from mlops.common.pipeline.prepare_execute import ArgRunner
 from mlops.common.src.base_logger import get_logger
 
 logger = get_logger(__name__)
@@ -39,11 +40,26 @@ def image_classification_job(pipeline_job_input, model_name, build_reference):
         "pipeline_job_test_data": prepare_data.outputs.test_data,
         "pipeline_job_trained_model": train_with_data.outputs.model_output,
         "pipeline_job_score_report": score_with_data.outputs.score_report,
-        "pipeline_job_mlops_results": register_model_with_data.outputs.mlops_results,
+        "pipeline_job_azureml_outputs": register_model_with_data.outputs.azureml_outputs,
     }
 
 
-def construct_pipeline(
+def construct_pipeline(args: dict, compute, environment):
+    return construct(
+        args.subscription_id,
+        args.resource_group_name,
+        args.workspace_name,
+        compute.name,
+        f"azureml:{environment.name}:{environment.version}",
+        args.display_name,
+        args.deploy_environment,
+        args.build_reference,
+        args.model_name,
+        args.asset_name,
+    )
+
+
+def construct(
     subscription_id: str,
     resource_group_name: str,
     workspace_name: str,
@@ -109,4 +125,17 @@ def construct_pipeline(
 
 
 if __name__ == "__main__":
-    read_args_and_execute(construct_pipeline)
+
+    arg_runner = ArgRunner()
+
+    arg_runner.add_arg(
+        "--model_name", type=str, default="Name used for registration of model"
+    )
+    arg_runner.add_arg(
+        "--asset_name",
+        type=str,
+        required=False,
+        help="The data asset to be used by the pipeline.",
+    )
+
+    arg_runner.prepare_and_execute(construct_pipeline)

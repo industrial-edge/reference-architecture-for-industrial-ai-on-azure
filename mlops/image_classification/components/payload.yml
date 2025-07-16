@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Siemens AG
+# SPDX-FileCopyrightText: 2025 Siemens AG
 #
 # SPDX-License-Identifier: MIT
 
@@ -17,6 +17,6 @@ outputs:
 code: ./../../
 environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest
 command: >-
-  python -m image_classification.src.prep.mqtt_payload
+  python -m image_classification.src.prep.zmq_payload
   --raw_data ${{inputs.raw_data}}
   --payload_data ${{outputs.payload_data}}

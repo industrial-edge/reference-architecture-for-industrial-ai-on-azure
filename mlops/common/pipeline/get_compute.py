@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Siemens AG
+# SPDX-FileCopyrightText: 2025 Siemens AG
 #
 # SPDX-License-Identifier: MIT
 
@@ -13,7 +13,32 @@ from mlops.common.src.base_logger import get_logger
 logger = get_logger(__name__)
 
 
-def get_compute(
+def get_compute(args: dict):
+    """
+    Retrieves an existing compute cluster or creates a new one.
+
+    Arguments:
+    args: dict
+        Arguments required for creating compute cluster
+
+    Returns:
+    compute_object: AmlCompute
+        Azure Machine learning compute object
+    """
+    return get(
+        args.subscription_id,
+        args.resource_group_name,
+        args.workspace_name,
+        args.cluster_name,
+        args.cluster_size,
+        args.cluster_region,
+        args.min_instances,
+        args.max_instances,
+        args.idle_time_before_scale_down,
+    )
+
+
+def get(
     subscription_id: str,
     resource_group_name: str,
     workspace_name: str,
@@ -83,40 +108,49 @@ def get_compute(
     return compute_object
 
 
+def compute_argument_parser(parser: argparse.ArgumentParser):
+    def add_arg(parser, arg_name, **kwargs):
+        logger.info("compute. Adding argument %s", arg_name)
+        if not any(arg_name in action.option_strings for action in parser._actions):
+            parser.add_argument(arg_name, **kwargs)
+
+    add_arg(parser, "--subscription_id", type=str, help="Azure subscription id")
+    add_arg(
+        parser,
+        "--resource_group_name",
+        type=str,
+        help="Azure Machine learning resource group",
+    )
+    add_arg(
+        parser,
+        "--workspace_name",
+        type=str,
+        help="Azure Machine learning Workspace name",
+    )
+    add_arg(
+        parser, "--cluster_name", type=str, help="Azure Machine learning cluster name"
+    )
+    add_arg(
+        parser, "--cluster_size", type=str, help="Azure Machine learning cluster size"
+    )
+    add_arg(
+        parser,
+        "--cluster_region",
+        type=str,
+        help="Azure Machine learning cluster region",
+    )
+    add_arg(parser, "--min_instances", type=int, default=0)
+    add_arg(parser, "--max_instances", type=int, default=4)
+    add_arg(parser, "--idle_time_before_scale_down", type=int, default=120)
+
+
 def main():
+
     parser = argparse.ArgumentParser("get_compute")
-    parser.add_argument("--subscription_id", type=str, help="Azure subscription id")
-    parser.add_argument(
-        "--resource_group_name", type=str, help="Azure Machine learning resource group"
-    )
-    parser.add_argument(
-        "--workspace_name", type=str, help="Azure Machine learning Workspace name"
-    )
-    parser.add_argument(
-        "--cluster_name", type=str, help="Azure Machine learning cluster name"
-    )
-    parser.add_argument(
-        "--cluster_size", type=str, help="Azure Machine learning cluster size"
-    )
-    parser.add_argument(
-        "--cluster_region", type=str, help="Azure Machine learning cluster region"
-    )
-    parser.add_argument("--min_instances", type=int, default=0)
-    parser.add_argument("--max_instances", type=int, default=4)
-    parser.add_argument("--idle_time_before_scale_down", type=int, default=120)
+    compute_argument_parser(parser)
 
     args = parser.parse_args()
-    get_compute(
-        args.subscription_id,
-        args.resource_group_name,
-        args.workspace_name,
-        args.cluster_name,
-        args.cluster_size,
-        args.cluster_region,
-        args.min_instances,
-        args.max_instances,
-        args.idle_time_before_scale_down,
-    )
+    get_compute(args)
 
 
 if __name__ == "__main__":

@@ -1,26 +1,20 @@
-# Copyright (C) 2023 Siemens AG
 # Copyright (C) Siemens AG 2021. All Rights Reserved. Confidential.
-#
 # SPDX-License-Identifier: MIT
+"""
+Common methods for handling image payload with different connectors.
 
 """
-Create Vision Connector MQTT payload from image file
 
-"""
-
-import base64
-import datetime
-import io
-import json
-import logging
-from itertools import chain
-from pathlib import Path
 from urllib.request import urlopen
-
+import base64
+import cv2
+import datetime
+from itertools import chain
+import json
+import numpy
+from pathlib import Path
 from PIL import Image
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+import io
 
 IMAGE_WIDTH = 224
 IMAGE_HEIGHT = 224
@@ -31,6 +25,15 @@ height = 0
 
 
 def create_mqtt_payload(filepath):
+    """
+    Packages an image file into Vision Connector payload format for testing.
+
+    Args:
+        filepath: Path to an image file.
+
+    Returns:
+        dict: The Vision Connector `Object`.
+    """
 
     with open(filepath, "rb") as image_file:
         content = image_file.read()
@@ -63,10 +66,18 @@ def create_mqtt_payload(filepath):
 
 def get_image_from_vision_mqtt_payload(vision_payload):
     """
-    Takes a Vision Connector JSON payload, decodes the image and returns it as
-    PIL image object resized to the input shape of the network.
-    Returns None if decoding fails.
+    Takes a Vision Connector JSON payload, decodes the image
+    and returns it as PIL image object resized to the input shape of the network.
+
+    Args:
+        vision_payload: A Vision Payload `Object`.
+
+    Returns:
+        Image: The PIL Image extracted from the Vision Connector `Object`. Returns None if decoding fails.
     """
+    from log_module import LogModule
+
+    logger = LogModule()
 
     try:
         image_string = vision_payload["image"]
@@ -77,15 +88,21 @@ def get_image_from_vision_mqtt_payload(vision_payload):
             pil_image = Image.open(io.BytesIO(image_bytes)).resize(IMAGE_SIZE)
             logger.debug(f"Image info: {pil_image}")
         return pil_image
-    except Exception as e:
-        logger.debug(f"Error decoding image from vision payload: {e}")
+    except Exception:
+        logger.debug("Error decoding image from vision payload")
         return None
 
 
 def create_zmq_dict(file_path: Path):
     """
-    Provides Vision Connector binary payload in a dictionary with key "image"
-    that is specified as single input of inference node.
+    Provides Vision Connector `Object` payload in a dictionary with key "image" that
+    is specified as single input of inference node.
+
+    Args:
+        file_path (Path): The image file to be packaged.
+
+    Returns:
+        dict: The image formatted as a Vision Connector `Object` output.
     """
 
     image = Image.open(file_path)
@@ -105,6 +122,15 @@ def create_zmq_dict(file_path: Path):
 
 
 def create_image_output(image: Image):
+    """
+    Takes a PIL image and packages it into an `Object` payload format.
+
+    Args:
+        image (Image): The PIL Image to be packaged.
+
+    Returns:
+        dict: The image formatted as an `Object` output.
+    """
     output_image = {
         "metadata": json.dumps(
             {"resolutionWidth": image.width, "resolutionHeight": image.height}
@@ -116,13 +142,20 @@ def create_image_output(image: Image):
 
 def get_image_from_vision_zmq_dict(image_data: dict):
     """
-    Takes a Vision Connector binary payload in a dictionary,
-    decodes the image and returns it as PIL image object resized
-    to the input shape of the network.
-    Returns None if decoding fails.
-    """
+    Takes a Vision Connector `Object` payload in a dictionary, decodes the image
+    and returns it as PIL image object resized to the input shape of the network.
 
-    global counter
+    Args:
+        image_data (dict): A dictionary containing the Vision Connecto `Object`.
+
+    Returns:
+        Image: The PIL image extracted from a Vision Connector `Object`. Returns None if decoding fails.
+    """
+    from log_module import LogModule
+
+    logger = LogModule()
+
+    global counter, width, height
     counter = (counter + 1) % 10
 
     if image_data["dataType"] != "uint8" or image_data["channelsPerPixel"] != 3:
@@ -142,12 +175,21 @@ def get_image_from_vision_zmq_dict(image_data: dict):
         logger.debug(f"Image info: {pil_image}")
 
         return pil_image
-    except Exception as e:
-        logger.error(f"Error decoding image from vision payload: {e}")
+    except Exception:
+        logger.warning("Error decoding image from vision payload")
         return None
 
 
 def _swap_bytes(image_bytes):
+    """
+    Takes raw image data in `bytes` format and converts RGB to BGR or vice versa.
+
+    Args:
+        image_bytes: Raw bytes of a PIL Image.
+
+    Returns:
+        bytes: Raw bytes of a PIL Imag.
+    """
 
     number_of_pixels = int(len(image_bytes) / 3)
     list_of_bytes = [
@@ -157,3 +199,140 @@ def _swap_bytes(image_bytes):
     image_bytes = bytes(chain.from_iterable(list_of_bytes))
 
     return image_bytes
+
+
+def create_binary_output(image):
+    """
+    Takes a PIL image and writes it as PNG into a memory buffer, then returns it as a `bytes` array.
+
+    Args:
+        image: The PIL image to be packaged.
+
+    Returns:
+        bytes: The raw bytes of the image in PNG format.
+    """
+    image = image.convert(mode="RGB", colors=256)
+
+    membuf = io.BytesIO()
+    image.save(membuf, format="png")
+
+    return membuf.getvalue()
+
+
+def create_binary_dict(file_path, name="image"):
+    """
+    Provides `Binary` payload in a dictionary with key "image" that is specified as single input of inference node.
+
+    Args:
+        file_path: The image file to be packaged.
+        name (str): Key for the `Binary` data in the dictionary
+
+    Returns:
+        dict: The image formatted as a `Binary` output.
+    """
+    image = Image.open(file_path)
+
+    return {f"{name}": create_binary_output(image)}
+
+
+def get_image_from_binary_input(data: dict, name="image"):
+    """
+    Takes a `Binary` pipeline input and extracts a PIL image from it.
+
+    Args:
+        data (dict): Pipeline input dictionary
+        name (str): Key for the `Binary` data in the dictionary
+
+    Returns:
+        Image: The extracted image as a PIL Image.
+    """
+    binary = data[name]
+
+    if not isinstance(binary, bytes):
+        from log_module import LogModule
+
+        logger = LogModule()
+        logger.error(f"The variable '{name}' is not a 'bytes' instance.")
+        return None
+
+    return (
+        Image.open(io.BytesIO(binary))
+        .convert(mode="RGB", colors=256)
+        .resize(IMAGE_SIZE)
+    )
+
+
+def create_imageset_dict(image_path, image_format="RAW"):
+    timestamp = datetime.datetime.now().isoformat()
+
+    if image_format == "RAW":
+        image = Image.open(image_path)
+        width, height = image.size
+        with open(image_path, "rb") as fp:
+            image_bytes = fp.read()
+    elif image_format == "BGR8":
+        image = Image.open(image_path)
+        width, height = image.size
+        image_bytes = image.convert(mode="RGB", colors=256)
+    elif image_format == "BayerRG8":
+        image_bytes, width, height = image_to_bayer(image_path)
+
+    return {
+        "version": "1",
+        "count": 1,
+        "timestamp": timestamp,
+        "detail": [
+            {
+                "id": str(image_path),
+                "timestamp": timestamp,
+                "width": width,
+                "height": height,
+                "format": image_format,
+                "image": bytes(image_bytes),
+            }
+        ],
+    }
+
+
+def create_imageset_payload(file_path: Path):
+    image = Image.open(file_path)
+    image = image.convert(mode="RGB", colors=256)
+    timestamp = datetime.datetime.now().isoformat()
+
+    metadata = json.dumps(
+        {
+            "version": "1",
+            "count": 1,
+            "timestamp": timestamp,
+            "detail": [
+                {
+                    "id": file_path,
+                    "timestamp": timestamp,
+                    "width": image.width,
+                    "height": image.height,
+                    "format": "BGR8",
+                }
+            ],
+        }
+    ).encode(encoding="utf-8")
+
+    return [metadata, _swap_bytes(image.tobytes())]
+
+
+def image_to_bayer(image_path):
+    im = cv2.imread(str(image_path))
+    im = cv2.resize(im, (224, 224))  # RGB image 224x224x3
+    (height, width) = im.shape[:2]
+    (color_r, color_g, color_b) = cv2.split(im)
+
+    bayerrg8 = numpy.zeros((height, width), numpy.uint8)
+
+    # strided slicing for this pattern:
+    #   R G
+    #   G R
+    bayerrg8[0::2, 0::2] = color_r[0::2, 1::2]  # top left
+    bayerrg8[0::2, 1::2] = color_g[0::2, 0::2]  # top right
+    bayerrg8[1::2, 0::2] = color_g[1::2, 1::2]  # bottom left
+    bayerrg8[1::2, 1::2] = color_b[1::2, 0::2]  # bottom right
+
+    return bayerrg8, width, height

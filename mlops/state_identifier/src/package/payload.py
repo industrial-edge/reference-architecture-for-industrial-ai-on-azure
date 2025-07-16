@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Siemens AG
+# SPDX-FileCopyrightText: 2025 Siemens AG
 #
 # SPDX-License-Identifier: MIT
 
@@ -17,19 +17,17 @@ def main(raw_data: str, payload_data: str) -> None:
         f"Raw data path: {raw_data}",
         f"Data output path: {payload_data}",
     ]
+    logger.info("\n".join(lines))
 
     raw_data_frame = pd.read_parquet(raw_data)
 
     # creating a list of dictionaries as the `process_input(..)` method receives them
     input_list = raw_data_frame[["ph1", "ph2", "ph3"]].to_dict(orient="records")
 
-    lines.append("First sample records of payload:")
-    for payload in input_list[:10]:
-        lines.append(f"{payload}")
+    array_of_input_lists = []
+    array_of_input_lists.append(input_list)
 
-    logger.info("\n".join(lines))
-
-    joblib.dump(input_list, payload_data, compress=9)
+    joblib.dump(array_of_input_lists, payload_data, compress=9)
 
     logger.info("Finish")
 
@@ -52,4 +50,4 @@ if __name__ == "__main__":
     raw_data = args.raw_data
     payload_data = args.payload_data
 
-    main(raw_data, payload_data)
+    main(raw_data=raw_data, payload_data=payload_data)

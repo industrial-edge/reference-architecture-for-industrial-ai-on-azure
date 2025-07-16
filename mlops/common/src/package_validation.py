@@ -1,10 +1,12 @@
-# Copyright (C) 2023 Siemens AG
+# SPDX-FileCopyrightText: 2025 Siemens AG
 #
 # SPDX-License-Identifier: MIT
 
 import argparse
 import joblib
 import pandas
+import tempfile
+import shutil
 from pathlib import Path
 
 from common.src.base_logger import get_logger
@@ -33,8 +35,18 @@ def main(payload_data, package_path, validation_results):
         payload_file / "payload_file" if payload_file.is_dir() else payload_file
     )
 
-    test_dir = Path("./test")
+    test_dir = Path(tempfile.gettempdir()) / "test"
     test_dir.mkdir(parents=True, exist_ok=True)
+
+    temp_package_dir = Path(tempfile.gettempdir()) / "package"
+    temp_package_dir.mkdir(parents=True, exist_ok=True)
+
+    if package_path.is_dir():
+        shutil.copytree(package_path, temp_package_dir, dirs_exist_ok=True)
+    else:
+        shutil.copy2(package_path, temp_package_dir / package_path.name)
+
+    package_zip_file = temp_package_dir / package_path.name
 
     logger.info(
         "payload_file exists, dir, file: %s %s %s \n%s",
@@ -45,13 +57,28 @@ def main(payload_data, package_path, validation_results):
     )
 
     input_list = joblib.load(payload_file)
+    logger.info(f"input_list len: {len(input_list)}")
+    logger.debug(f"input_list[0]: {input_list[0]}")
 
-    with LocalPipelineRunner(package_path, test_dir) as runner:
-        outputs = runner.run_pipeline(input_list)
+    outputs = []
+    with LocalPipelineRunner(package_zip_file, test_dir) as runner:
+        for input_data in input_list:
+            out1 = runner.run_pipeline(input_data)
+            logger.info(f"out1: {out1}")
 
-    if len(outputs) > 0:
-        df_outputs = pandas.DataFrame(outputs)
-        df_outputs.to_csv(validation_results, quotechar="'", index=False)
+            if isinstance(out1, list):
+                logger.info("out1 is a list")
+                for row in out1:
+                    outputs.append(row)
+            else:
+                logger.info("out1 is not a list")
+                outputs.append(out1)
+
+    logger.info(f"outputs len: {len(outputs)}")
+    logger.debug(f"outputs: {outputs}")
+
+    df_outputs = pandas.DataFrame(outputs)
+    df_outputs.to_csv(validation_results, quotechar="'", index=False)
 
 
 if __name__ == "__main__":
@@ -75,4 +102,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    main(args.payload_data, args.package_path, args.validation_results)
+    main(
+        payload_data=args.payload_data,
+        package_path=args.package_path,
+        validation_results=args.validation_results,
+    )

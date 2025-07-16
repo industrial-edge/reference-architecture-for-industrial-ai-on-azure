@@ -1,12 +1,13 @@
-# Copyright (C) 2023 Siemens AG
+# SPDX-FileCopyrightText: 2025 Siemens AG
 #
 # SPDX-License-Identifier: MIT
 
 import argparse
 import azure.core.exceptions
+from pathlib import Path
 
 from azure.ai.ml import MLClient
-from azure.ai.ml.entities import Environment
+from azure.ai.ml.entities import Environment, BuildContext
 from azure.identity import DefaultAzureCredential
 
 from mlops.common.src.base_logger import get_logger
@@ -14,11 +15,22 @@ from mlops.common.src.base_logger import get_logger
 logger = get_logger(__name__)
 
 
-def get_environment(
+def get_environment(args: dict):
+    return get(
+        args.subscription_id,
+        args.resource_group_name,
+        args.workspace_name,
+        args.conda_path,
+        args.environment_name,
+        args.env_description,
+        eval(args.update_env),
+    )
+
+
+def get(
     subscription_id: str,
     resource_group_name: str,
     workspace_name: str,
-    env_base_image_name: str,
     conda_path: str,
     environment_name: str,
     description: str,
@@ -26,6 +38,8 @@ def get_environment(
 ):
     try:
         logger.info(f"Checking {environment_name} environment.")
+        logger.info(f"update_env: {update_env}")
+
         client = MLClient(
             DefaultAzureCredential(),
             subscription_id=subscription_id,
@@ -37,8 +51,7 @@ def get_environment(
 
         if update_env or not environments:
             env_docker_conda = Environment(
-                image=env_base_image_name,
-                conda_file=conda_path,
+                build=BuildContext(path=Path(conda_path).parent),
                 name=environment_name,
                 description=description,
             )
@@ -54,8 +67,14 @@ def get_environment(
             logger.info(f"Environment {environment_name} has been created or updated.")
             return environment
         else:
-            version_numbers = [int(env.version) for env in environments]
+
+            version_numbers = []
+            for env in environments:
+                version_numbers.append(int(env.version))
+
             latest_version = max(version_numbers, default=-1)
+            logger.info(f"Latest version: {latest_version}")
+
             environment = client.environments.get(
                 name=environment_name, version=latest_version
             )
@@ -72,44 +91,60 @@ def get_environment(
         raise
 
 
-def main():
-    parser = argparse.ArgumentParser("prepare_environment")
-    parser.add_argument("--subscription_id", type=str, help="Azure subscription id")
-    parser.add_argument(
-        "--resource_group_name", type=str, help="Azure Machine learning resource group"
+def environment_argument_parser(parser: argparse.ArgumentParser):
+    def add_arg(parser, arg_name, **kwargs):
+        logger.info("environment. Adding argument %s", arg_name)
+        if not any(arg_name in action.option_strings for action in parser._actions):
+            parser.add_argument(arg_name, **kwargs)
+
+    add_arg(parser, "--subscription_id", type=str, help="Azure subscription id")
+    add_arg(
+        parser,
+        "--resource_group_name",
+        type=str,
+        help="Azure Machine learning resource group",
     )
-    parser.add_argument(
-        "--workspace_name", type=str, help="Azure Machine learning Workspace name"
+    add_arg(
+        parser,
+        "--workspace_name",
+        type=str,
+        help="Azure Machine learning Workspace name",
     )
-    parser.add_argument(
-        "--env_base_image_name", type=str, help="Environment custom base image name"
+    add_arg(
+        parser,
+        "--env_base_image_name",
+        type=str,
+        help="Environment custom base image name",
     )
-    parser.add_argument(
-        "--conda_path", type=str, help="path to conda requirements file"
+    add_arg(parser, "--conda_path", type=str, help="path to conda requirements file")
+    add_arg(
+        parser,
+        "--environment_name",
+        type=str,
+        help="Azure Machine learning environment name",
     )
-    parser.add_argument(
-        "--environment_name", type=str, help="Azure Machine learning environment name"
+    add_arg(
+        parser,
+        "--env_description",
+        type=str,
+        default="Environment created using Conda.",
     )
-    parser.add_argument(
-        "--description", type=str, default="Environment created using Conda."
-    )
-    parser.add_argument(
+    add_arg(
+        parser,
         "--update_env",
         type=str,
         help="Determines if Azure Machine Learning Environment should be updated or not.",
+        required=False,
+        default="False",
     )
-    args = parser.parse_args()
 
-    get_environment(
-        args.subscription_id,
-        args.resource_group_name,
-        args.workspace_name,
-        args.env_base_image_name,
-        args.conda_path,
-        args.environment_name,
-        args.description,
-        eval(args.update_env),
-    )
+
+def main():
+    parser = argparse.ArgumentParser("prepare_environment")
+    environment_argument_parser(parser)
+
+    args = parser.parse_args()
+    get_environment(args)
 
 
 if __name__ == "__main__":

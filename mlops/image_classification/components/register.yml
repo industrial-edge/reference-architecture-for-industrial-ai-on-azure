@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Siemens AG
+# SPDX-FileCopyrightText: 2025 Siemens AG
 #
 # SPDX-License-Identifier: MIT
 
@@ -17,7 +17,7 @@ inputs:
   build_reference:
     type: string
 outputs:
-  mlops_results:
+  azureml_outputs:
     type: uri_file
 code: ./../../
 environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest
@@ -27,4 +27,4 @@ command: >-
   --build_reference ${{inputs.build_reference}}
   --score_report ${{inputs.score_report}}
   --model_metadata ${{inputs.model_metadata}}
-  --mlops_results ${{outputs.mlops_results}}
+  --azureml_outputs ${{outputs.azureml_outputs}}

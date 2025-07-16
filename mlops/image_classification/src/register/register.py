@@ -1,11 +1,12 @@
-# Copyright (C) 2023 Siemens AG
+# SPDX-FileCopyrightText: 2025 Siemens AG
 #
 # SPDX-License-Identifier: MIT
 
-import mlflow
 import argparse
 import json
 from pathlib import Path
+import mlflow
+from azureml.core import Run
 
 from common.src.base_logger import get_logger
 
@@ -17,14 +18,35 @@ def main(
     model_name,
     score_report,
     build_reference,
-    mlops_results_path,
+    azureml_outputs,
 ):
+
+    run = Run.get_context()
+    logger.info(f"run: {run}")
+
+    tracking_uri = run.experiment.workspace.get_mlflow_tracking_uri()
+    logger.info(f"tracking_uri: {tracking_uri}")
+    logger.info(f"calling set_tracking_uri with {tracking_uri}")
+    mlflow.set_tracking_uri(tracking_uri)
+
     try:
-        run_file = open(model_metadata)
+
+        logger.info("Registering model")
+
+        model_metadata_str = str(Path(model_metadata))
+        logger.info(f"Model metadata str: {model_metadata}")
+
+        run_file = open(model_metadata_str)
+
+        logger.info(f"Run file: {run_file}")
+
         model_metadata = json.load(run_file)
         run_uri = model_metadata["run_uri"]
 
-        score_file = open(Path(score_report) / "metrics.json")
+        score_file_path = str(Path(score_report) / "score.json")
+        # logger.info(f"------>>> Score file path: {score_file_path}")
+
+        score_file = open(score_file_path)
         score_data = json.load(score_file)
         macro_avg = score_data["clf_report"]["macro avg"]
 
@@ -48,13 +70,19 @@ def main(
                 value=value,
             )
 
+            # logger.info(f"Tag {key} set to {value} for model version {model_version.version}")
+
         logger.info(str(model_version))
 
         mlops_results = {
             "model_name": model_name,
             "model_version": model_version.version,
         }
-        with open(Path(mlops_results_path), "w") as json_file:
+
+        path_azureml_outputs = str(Path(azureml_outputs))
+        logger.info(f"path_azureml_outputs: {path_azureml_outputs}")
+
+        with open(path_azureml_outputs, "w") as json_file:
             json.dump(mlops_results, json_file, indent=4)
 
     except Exception as ex:
@@ -77,7 +105,7 @@ if __name__ == "__main__":
         help="Original AzDo build id that initiated experiment",
     )
     parser.add_argument(
-        "--mlops_results",
+        "--azureml_outputs",
         type=str,
         help="UriFile output with results of the model registration",
     )
@@ -89,5 +117,5 @@ if __name__ == "__main__":
         model_name=args.model_name,
         score_report=args.score_report,
         build_reference=args.build_reference,
-        mlops_results_path=args.mlops_results,
+        azureml_outputs=args.azureml_outputs,
     )

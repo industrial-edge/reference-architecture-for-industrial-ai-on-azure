@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Siemens AG
+# SPDX-FileCopyrightText: 2025 Siemens AG
 #
 # SPDX-License-Identifier: MIT
 
@@ -9,10 +9,24 @@ display_name: ScorePackage
 type: command
 
 inputs:
+  subscription_id:
+    type: string
+  workspace_name:
+    type: string
+  resource_group_name:
+    type: string
+  asset_name:
+    type: string
+  asset_version:
+    type: string
   validation_results:
     type: uri_file
-  prep_data:
-    type: uri_folder
+  raw_data:
+    type: uri_file
+  # prep_data:
+  #   type: uri_folder
+  model:
+    type: uri_file
 outputs:
   metrics_results:
     type: uri_file
@@ -21,6 +35,14 @@ environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest
 code: ./../../
 command: >-
   python -m state_identifier.src.package.score_package
+  --subscription_id ${{inputs.subscription_id}}
+  --workspace_name ${{inputs.workspace_name}}
+  --resource_group_name ${{inputs.resource_group_name}}
+  --asset_name ${{inputs.asset_name}}
+  --asset_version ${{inputs.asset_version}}
   --validation_results ${{inputs.validation_results}}
-  --prep_data ${{inputs.prep_data}}
+  --raw_data ${{inputs.raw_data}}
+  --model ${{inputs.model}}
   --metrics_results ${{outputs.metrics_results}}
+
+# --prep_data ${{inputs.prep_data}}

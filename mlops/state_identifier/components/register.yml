@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Siemens AG
+# SPDX-FileCopyrightText: 2025 Siemens AG
 #
 # SPDX-License-Identifier: MIT
 
@@ -9,19 +9,21 @@ version: 1
 type: command
 
 inputs:
+  model_metadata:
+    type: uri_file
   model_name:
     type: string
   build_reference:
     type: string
   score_report:
     type: uri_folder
-  preparation_pipeline_path:
-    type: uri_folder
-  model:
-    type: uri_folder
+  # preparation_pipeline_path:
+  #   type: uri_folder
+  # model:
+  #   type: uri_folder
 
 outputs:
-  mlops_results:
+  azureml_outputs:
     type: uri_file
 
 code: ./../../
@@ -31,6 +33,7 @@ command: >-
   --model_name ${{inputs.model_name}}
   --build_reference ${{inputs.build_reference}}
   --score_report ${{inputs.score_report}}
-  --preparation_pipeline_path ${{inputs.preparation_pipeline_path}}
-  --model ${{inputs.model}}
-  --mlops_results ${{outputs.mlops_results}}
+  --model_metadata ${{inputs.model_metadata}}
+  --azureml_outputs ${{outputs.azureml_outputs}}
+
+# --model ${{inputs.model}}

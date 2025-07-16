@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Siemens AG
+# SPDX-FileCopyrightText: 2025 Siemens AG
 #
 # SPDX-License-Identifier: MIT
 
@@ -17,13 +17,13 @@ logger = get_logger(__name__)
 
 
 def main(
-    validation_results: str,
-    raw_data: str,
     subscription_id: str,
-    resource_group_name: str,
     workspace_name: str,
+    resource_group_name: str,
     asset_name: str,
     asset_version: str,
+    validation_results: str,
+    raw_data: str,
     metrics_results: str,
 ):
 
@@ -49,9 +49,14 @@ def main(
         int(labels_dict[class_name]) for class_name in raw_data_classes
     ]
 
-    validation_results = pd.read_csv(validation_results)
-    validation_results_classes = validation_results["prediction"]
-    validation_results_classes_int = [int(pred) for pred in validation_results_classes]
+    df = pd.read_csv(validation_results, quotechar="'")
+    logger.info(f"DataFrame columns: {df.columns}")  # Log the columns of the DataFrame
+    results = df.to_dict(orient="records")
+
+    logger.info(f"results len: {len(results)}")
+    logger.debug(f"results: {results}")
+
+    validation_results_classes_int = [int(item["prediction"]) for item in results]
 
     clf_report = classification_report(
         y_true=raw_data_classes_int,
@@ -74,30 +79,32 @@ def main(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("score")
+    parser.add_argument("--subscription_id", type=str, help="Azure subscription ID")
+    parser.add_argument(
+        "--workspace_name", type=str, help="Azure Machine Learning workspace name"
+    )
+    parser.add_argument(
+        "--resource_group_name", type=str, help="Azure resource group name"
+    )
+    parser.add_argument("--asset_name", type=str, help="Model Name")
+    parser.add_argument("--asset_version", type=str, help="Model Version")
     parser.add_argument(
         "--validation_results", type=str, help="Path to validation results"
     )
     parser.add_argument("--raw_data", type=str, help="Path to raw data")
-    parser.add_argument("--subscription_id", type=str, help="Azure subscription ID")
-    parser.add_argument(
-        "--resource_group_name", type=str, help="Azure resource group name"
-    )
-    parser.add_argument(
-        "--workspace_name", type=str, help="Azure Machine Learning workspace name"
-    )
-    parser.add_argument("--asset_name", type=str, help="Model Name")
-    parser.add_argument("--asset_version", type=str, help="Model Version")
+    parser.add_argument("--prep_data", type=str, help="Path to prep data")
+    # parser.add_argument("--model", required=False, type=str, help="Path to model")
     parser.add_argument("--metrics_results", type=str, help="Path to output file")
 
     args = parser.parse_args()
 
     main(
-        args.validation_results,
-        args.raw_data,
-        args.subscription_id,
-        args.resource_group_name,
-        args.workspace_name,
-        args.asset_name,
-        args.asset_version,
-        args.metrics_results,
+        subscription_id=args.subscription_id,
+        workspace_name=args.workspace_name,
+        resource_group_name=args.resource_group_name,
+        asset_name=args.asset_name,
+        asset_version=args.asset_version,
+        validation_results=args.validation_results,
+        raw_data=args.raw_data,
+        metrics_results=args.metrics_results,
     )

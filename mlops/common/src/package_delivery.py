@@ -1,8 +1,5 @@
-# Copyright (C) 2023 Siemens AG
 # Copyright (C) Siemens AG 2021. All Rights Reserved. Confidential.
-#
 # SPDX-License-Identifier: MIT
-
 """
 A Python module to execute parameterized Azure ML Pipeline Step
 """
@@ -38,14 +35,19 @@ def main(
     edge_package_version: str,
     deploy_environment: str,
 ):
-    # Getting credentials for User Managed Identity added to Compute Cluster in order to 
+
+    logger.info(f"device_id: {device_id}")
+    logger.info(f"edge_package_name: {edge_package_name}")
+    logger.info(f"edge_package_version: {edge_package_version}")
+
+    # Getting credentials for User Managed Identity added to Compute Cluster in order to
     # use related Azure resources
     azure_credential = ChainedTokenCredential(
         AzureCliCredential(),
         ManagedIdentityCredential(client_id=os.getenv("DEFAULT_IDENTITY_CLIENT_ID")),
     )
 
-    # ml_client 
+    # ml_client
     ml_client = MLClient(
         credential=azure_credential,
         subscription_id=os.environ.get("AZUREML_ARM_SUBSCRIPTION"),
@@ -53,7 +55,7 @@ def main(
         workspace_name=os.environ.get("AZUREML_ARM_WORKSPACE_NAME"),
     )
 
-    # connecting Azure Keyvault to get access to IoTHub as the required credentials and connection strings are stored in KeyVault
+    # connecting Azure Keyvault to get access to IoTHub as the required credentials and connection strings
     secret_client = SecretClient(
         credential=azure_credential,
         vault_url=f"https://{keyvault_name}.vault.azure.net/",
@@ -65,7 +67,7 @@ def main(
         event_hub_connection_string_secret_name
     ).value
 
-    # In case the version of the package is defined as "latest", 
+    # In case the version of the package is defined as "latest",
     # we need to search for the name in the Model Registry and get the Edge Deployment Package
     # with the same name and the highest version number registered
     if edge_package_version == "latest":
@@ -77,7 +79,7 @@ def main(
             name=edge_package_name, version=edge_package_version
         )
 
-    # Once the package is found we want to store the environment name where the package is delivered, 
+    # Once the package is found we want to store the environment name where the package is delivered,
     # so we update the "deploy_environment" in the tags of the registered package
     package_tags = package.tags
     package_tags["deploy_environment"] = deploy_environment
@@ -102,7 +104,7 @@ def main(
     blob_name = package.path.split("/paths/")[1]
 
     logger.info(f"device_id: {device_id}")
-    logger.info("package.model_version : %s", package.tags["packageid"])
+    logger.info("package.packageid : %s", package.tags["packageid"])
     logger.info(f"package.name: {package.name}")
     logger.info(f"package.version: {package.version}")
     logger.info(f"datastore.account_name: {datastore.account_name}")
