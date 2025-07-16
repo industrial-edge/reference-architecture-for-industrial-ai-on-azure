@@ -10,9 +10,11 @@ Reference Architecture for Industrial AI on Azure
 
 Known issues:
 
-# 1.0.1
+# 1.1.0
 
-Updating content to reflect on the changes in IndustrialAI solutions.
+- Update AI SDK to version 2.4
+- Update Training code
+- Update environment configuration
 
 # 1.0.0
 
